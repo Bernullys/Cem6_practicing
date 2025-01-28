@@ -1,0 +1,7 @@
+defusedxml==0.7.1
+fonttools==4.55.7
+fpdf2==2.8.2
+pillow==11.1.0
+pymodbus==3.8.3
+python-dateutil==2.9.0.post0
+six==1.17.0

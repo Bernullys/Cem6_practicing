@@ -1,0 +1,35 @@
+import sqlite3
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+from fpdf import FPDF
+from pdf_base import invoice
+
+actual_time = datetime.now()
+first_day_previous_month = (actual_time.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+last_day_previous_month = (actual_time.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
+
+example_start = "25-01-23 12:05:13"
+example_end = "25-01-24 13:41:12"
+
+#print(first_day_previous_month, last_day_previous_month)
+
+connecting_database = sqlite3.connect("./cem6_display_lectures.db")
+cursor = connecting_database.cursor()
+cursor.execute(
+    """
+        SELECT MIN(active_energy_consumption_kWh), MAX(active_energy_consumption_kWh), MAX(active_power_W)
+        FROM lectures
+        WHERE lecture_time BETWEEN ? AND ?
+    """,(example_start, example_end)
+)
+
+data = cursor.fetchone()
+first_month_lecture = data[0]
+last_month_lecture = data[1]
+max_demand = data[2]/1000   # In kW
+month_energy_consumption = (last_month_lecture - first_month_lecture)/100 # In kWh
+print(month_energy_consumption, max_demand)
+connecting_database.close()
+
+
+invoice(month_energy_consumption, max_demand)
