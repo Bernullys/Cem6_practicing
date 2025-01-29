@@ -1,4 +1,6 @@
 import time
+import matplotlib.pyplot as plt
+import pandas as pd
 
 data_time = time.localtime()
 formated_data_time = time.strftime("%y-%m-%d %H:%M:%S", data_time)
@@ -56,3 +58,24 @@ for i in range(leng):
     if i < leng:
         print(i)
     i += 1
+
+# Sample historical data (Months vs. Values)
+data = {
+    "Month": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    "Value": [100, 120, 90, 150, 130, 160, 170, 180, 140, 155, 165, 175]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Plot the data
+plt.figure(figsize=(10, 5))
+plt.plot(df["Month"], df["Value"], marker="o", linestyle="-", color="b", label="Historical Values")
+
+# Customize the graph
+plt.title("Historical Data: Months vs. Values")
+plt.xlabel("Months")
+plt.ylabel("Values")
+plt.grid(True)
+plt.legend()
+plt.savefig("my_graph.png")
