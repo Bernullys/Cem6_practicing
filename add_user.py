@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to the database:
-db_connection = sqlite3.connect("./users.db")
+db_connection = sqlite3.connect("./cem6_display_lectures.db")
 cursor_command = db_connection.cursor()
 
 # Create the table:

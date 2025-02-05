@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from fpdf import FPDF
-from one_consumer_pdf import invoice
+#from one_consumer_pdf import invoice
 
 # Store in variables the first and last day of the previous month:
 actual_time = datetime.now()
@@ -11,8 +11,8 @@ last_day_previous_month = (actual_time.replace(day=1) - timedelta(days=1)).repla
 #print(first_day_previous_month, last_day_previous_month)
 
 # Just to make tests:
-example_start = "25-01-23 12:05:13"
-example_end = "25-01-24 13:41:12"
+example_start = "25-02-05 13:55:51"
+example_end = "25-02-05 14:01:15"
 
 # Connect to the database and get the data:
 connecting_database = sqlite3.connect("./cem6_display_lectures.db")
@@ -34,4 +34,4 @@ print(month_energy_consumption, max_demand)
 connecting_database.close()
 
 
-invoice(month_energy_consumption, max_demand)
+#invoice(month_energy_consumption, max_demand)
