@@ -28,7 +28,7 @@ plt.grid(True)
 plt.savefig("graph.png")  # Save the graph as an image
 plt.close()
 
-def invoice(tip_amount, taxes):
+def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energy, monthly_cost, initial_datetime, final_datetime, actual_datetime, client_num, client_name, client_rut, client_address):
 
     class PDF(FPDF):    # header and footer methos are called automatically, but we have to extend the class and override them.
         
@@ -39,17 +39,17 @@ def invoice(tip_amount, taxes):
             self.cell(100, 10, "BOLETA DEL SERVICIO ELÉCTRICO", border=0, align="C")         # Printing title:
             self.ln(20)                                                     # Performing a line break:
             self.set_font("helvetica", "", 10)                             # Setting font: helvetica bold 15
-            self.cell(20, 20, f"Cliente N° (generar numero automatico)", border=0, align="L")
+            self.cell(20, 20, f"Cliente N°: {client_num}", border=0, align="L")
             self.ln(5)
             self.cell(20, 20, f"Factura N° (generar numero automatico)", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"Fecha de emisión (generar numero automatico)", border=0, align="L")
+            self.cell(20, 20, f"Fecha de emisión: {actual_datetime}", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"Cliente: (asignar a db)", border=0, align="L")
+            self.cell(20, 20, f"Cliente: {client_name}", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"RUT: (asignar a db)", border=0, align="L")
+            self.cell(20, 20, f"RUT: {client_rut}", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"Dirección: (asignar a db)", border=0, align="L")
+            self.cell(20, 20, f"Dirección: {client_address}", border=0, align="L")
 
         def footer(self):
             self.set_y(-15)                                                 # Position cursor at 1.5 cm from bottom:
@@ -66,14 +66,14 @@ def invoice(tip_amount, taxes):
 
     invoice_pdf.ln(10)
     invoice_pdf.set_font("helvetica", size=10)
-    invoice_pdf.cell(0, 0, f"Lectura inicial [kWh]:                 {tip_amount:,.2f}", align="L")
+    invoice_pdf.cell(0, 0, f"Lectura inicial [kWh]: {initial_energy_lecture:,.2f}. Fecha: {initial_datetime}", align="L")
     invoice_pdf.ln(7)
-    invoice_pdf.cell(0, 0, f"Lectura final [kWh]:                   {tip_amount:,.2f}", align="L")
+    invoice_pdf.cell(0, 0, f"Lectura final [kWh]:{final_energy_lectures:,.2f}. Fecha: {final_datetime}", align="L")
     invoice_pdf.ln(7)
-    invoice_pdf.cell(0, 0, f"Consumo eléctrico [kWh]:               {taxes:,.2f}", align="L")
+    invoice_pdf.cell(0, 0, f"Consumo eléctrico [kWh]: {monthly_comsumn_energy:,.2f}", align="L")
     invoice_pdf.ln(7)
     invoice_pdf.set_font("helvetica","B", size=12)
-    invoice_pdf.cell(0, 0, f"Total:                                ${taxes+tip_amount:,.2f}", align="L")
+    invoice_pdf.cell(0, 0, f"Total: ${monthly_cost:,.2f}", align="L")
 
     invoice_pdf.ln(30)
     invoice_pdf.set_font("helvetica", size=12)
@@ -83,5 +83,4 @@ def invoice(tip_amount, taxes):
     invoice_pdf.image("graph.png", x=30, w=150)
 
     invoice_pdf.output(f"electric_bill.pdf")
-          
-invoice(44444, 22444444)
+

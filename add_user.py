@@ -14,7 +14,8 @@ cursor_command.execute(
             phone TEXT NOT NULL,
             email TEXT NOT NULL,
             address TEXT NOT NULL,
-            sensor_id INTEGER NOT NULL
+            sensor_id INTEGER NOT NULL,
+            FOREING KEY(sensor_id) REFERENCES lectures(sensor_id)
         )
     """
 )
@@ -22,6 +23,7 @@ cursor_command.execute(
 # Insert a new user:
 first_name = input("Ingrese el nombre(s) del usuario: ")
 last_name = input("Ingrese el apellido(s) del usuario: ")
+run_rut = input("Ingrese en RUN o RUT del usuario: ")
 phone = input("Ingrese el teléfono del usuario: ")
 email = input("Ingrese el email del usuario: ")
 address = input("Ingrese la dirección del usuario: ")
