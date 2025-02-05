@@ -60,7 +60,6 @@ while True:
     # Adding the current time to the registers of the divice to later been inserted together
     lectures.append(data_time)
 
-
     # Creating a database
     connect_db = sqlite3.connect("cem6_display_lectures.db")
     cursor_db = connect_db.cursor()

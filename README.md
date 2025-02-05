@@ -1,3 +1,9 @@
+Notes of my Dell:
+Apart: saving ssh key in /home/bernardo/.ssh/id_rsa
+password: gitpassword
+The key fingerprint is:
+SHA256:ZPuNlHOSUYcvR57/aE3V/z9wbtz6pL42k486E6OE8Ok amigosolar.energy@gmail.com
+
 # Cem6_practicing
 
 I had to do this connecction on my Dell because I have here installed Linux Ubuntu as operational system.
@@ -25,10 +31,6 @@ gateway_six.py is conecting to the Legrand webserver, and reading the cem6 regis
 
 one_consumer_cem6_lectures.py is a file to manipulate data from the database and make operations until get a bill for electric energy.
 
-Notes of my Dell:
-Apart: saving ssh key in /home/bernardo/.ssh/id_rsa
-password: gitpassword
-The key fingerprint is:
-SHA256:ZPuNlHOSUYcvR57/aE3V/z9wbtz6pL42k486E6OE8Ok amigosolar.energy@gmail.com
+one_consumer_pdf.py is a file to generate bills or invoice every defined time. Also to show some historical data.
 
 add_user.py add into the database users.db manually. This is to have the users in a specific database but is not practical if there are many users. To a bigger application is better to create all users in an excel and then bring the values into this database.

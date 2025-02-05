@@ -36,7 +36,7 @@ def invoice(tip_amount, taxes):
             self.image("./logo.jpg", 10, 10, 20)                      # Rendering logo (path, position_x, position_y, width):
             self.set_font("helvetica", "B", 15)                             # Setting font: helvetica bold 15
             self.cell(50)                                                   # Moving cursor to the right:
-            self.cell(100, 10, "BOLETA ELÉCTRICIDAD", border=0, align="C")         # Printing title:
+            self.cell(100, 10, "BOLETA DEL SERVICIO ELÉCTRICO", border=0, align="C")         # Printing title:
             self.ln(20)                                                     # Performing a line break:
             self.set_font("helvetica", "", 10)                             # Setting font: helvetica bold 15
             self.cell(20, 20, f"Cliente N° (generar numero automatico)", border=0, align="L")
@@ -82,6 +82,6 @@ def invoice(tip_amount, taxes):
     invoice_pdf.ln(10)
     invoice_pdf.image("graph.png", x=30, w=150)
 
-    invoice_pdf.output(f"_bill.pdf")
+    invoice_pdf.output(f"electric_bill.pdf")
           
 invoice(44444, 22444444)
