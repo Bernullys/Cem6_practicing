@@ -15,7 +15,7 @@ cursor_command.execute(
             email TEXT NOT NULL,
             address TEXT NOT NULL,
             sensor_id INTEGER NOT NULL,
-            FOREING KEY(sensor_id) REFERENCES lectures(sensor_id)
+            FOREIGN KEY(sensor_id) REFERENCES lectures(sensor_id)
         )
     """
 )

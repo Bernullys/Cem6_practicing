@@ -58,7 +58,9 @@ while True:
             lectures.append(register)
 
     # Adding the current time to the registers of the divice to later been inserted together
-    lectures.append(data_time, slave_id)
+    lectures.append(data_time)
+    # Adding the sensor_id to the lectures
+    lectures.append(slave_id)
 
     # Creating a database
     connect_db = sqlite3.connect("cem6_display_lectures.db")
@@ -81,7 +83,7 @@ while True:
 
     # Inserting the list of values into the database
     cursor_db.execute( """
-    INSERT INTO lectures (sensor_id, voltage_V, current_A, frecuency_Hz, active_power_W, reactive_power_var, aparent_power_VA, power_factor, active_energy_consumption_kWh, lecture_time)
+    INSERT INTO lectures (voltage_V, current_A, frecuency_Hz, active_power_W, reactive_power_var, aparent_power_VA, power_factor, active_energy_consumption_kWh, lecture_time, sensor_id)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (lectures))
 
