@@ -11,6 +11,7 @@ cursor_command.execute(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             first_name TEXT NOT NULL,
             last_name TEXT NOT NULL,
+            rut TEXT NOT NULL,
             phone TEXT NOT NULL,
             email TEXT NOT NULL,
             address TEXT NOT NULL,
@@ -32,9 +33,9 @@ sensor_id = input("Ingrese el ID del sensor: ")
 # Insert user into the table:
 cursor_command.execute(
     """
-        INSERT INTO users (first_name, last_name, phone, email, address, sensor_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (first_name, last_name, phone, email, address, sensor_id)
+        INSERT INTO users (first_name, last_name, run_rut, phone, email, address, sensor_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (first_name, last_name, run_rut, phone, email, address, sensor_id)
 )
 
 # Commit and close:

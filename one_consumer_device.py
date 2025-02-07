@@ -63,7 +63,7 @@ while True:
     lectures.append(slave_id)
 
     # Creating a database
-    connect_db = sqlite3.connect("cem6_display_lectures.db")
+    connect_db = sqlite3.connect("cem6.db")
     cursor_db = connect_db.cursor()
     cursor_db.execute("""
         CREATE TABLE IF NOT EXISTS lectures (
