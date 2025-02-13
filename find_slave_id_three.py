@@ -9,10 +9,9 @@ while True:
     try:
         for i in range(256):
             slave_id = i
-            print(slave_id)
             rr = client.read_holding_registers(address=0, count=3, slave=slave_id)
-            if rr:
-                print(rr.registers)
+            
+            print(slave_id, rr.registers)
     except AttributeError:
-        print("error")
+        print("error by exception")
     pass

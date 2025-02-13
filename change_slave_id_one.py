@@ -9,7 +9,7 @@ print(f"Client connected id = {original_slave_id} registers= {rr.registers}")
 client.close()
 print("Client was closed")
 
-new_slave_id = 4
+new_slave_id = 2
 client = ModbusSerialClient(port="/dev/ttyUSB0", timeout=2, baudrate=9600, bytesize=8, parity="N", stopbits=1)
 client.connect()
 rr = client.write_registers(address=43, values=[new_slave_id], slave=original_slave_id)

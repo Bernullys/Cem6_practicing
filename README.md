@@ -25,7 +25,7 @@ find_slave_id_three.py is a file to find the id of a device... For now it's not 
 saving_lectires_four.py is reading some of the divice data in an infinite loop. At the same time is creating a variable with the actual time (every 60 seconds) to be taken with the registers and been inserted into a database named cem6_lectures_sample.
 This device is taking correct lectures of directions 0 to 6 then take 8 and repeat the same mesure of 8 on 46. Other electrical parameters are incorrect.
 
-gateway_six.py is conecting to the Legrand webserver, and reading the cem6 registers throuth it.
+gateway_six.py is conecting to the Legrand webserver, and reading the cem6 registers throuth it. In this program we can read from 1 to 32 devices.
 
 one_consumer_device.py is reading and storing the same registers the divice show on its display. Except the kVArh because its value has a mistake. This lectures are getting stored at cem6.db database.
 
@@ -36,3 +36,8 @@ one_consumer_pdf.py is a file to generate bills or invoice every defined time. A
 one_consumer_add_user.py add into the database cem6.db in table users manually. This is to have the users but is not practical if there are many users. To a bigger application is better to create all users in an excel and then bring the values into this database.
 
 one_consumer_ files are the first application completed for one cem6 working directly with my computer.
+
+gateway_seven.py is a file where I prove how to read registers from more than one device direction.
+
+many_consumers.py is reading and storing a a database named many_cem6.db in lectures table, the registers taken from
+tow devices. From this point onwards I have to do the same I did with one_consumer practice. But I will leave it here and I will work on another project with an API.
