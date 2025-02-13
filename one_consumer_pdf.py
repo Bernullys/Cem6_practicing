@@ -1,34 +1,42 @@
 from fpdf import FPDF
 import matplotlib.pyplot as plt
-import pandas as pd
+import sqlite3
 
-# Sample data:
-data = {
-    "Ene": 150,
-    "Feb": 180,
-    "Mar": 210,
-    "Abr": 190,
-    "May": 230,
-    "Jun": 250,
-    "Jul": 200,
-    "Ago": 220,
-    "Sep": 240,
-    "Oct": 260,
-    "Nov": 270,
-    "Dic": 280
-}
+one_consumer_id = 4
+
+# Bring data from historical_lectures table:
+connecting_database = sqlite3.connect("./cem6.db")
+cursor = connecting_database.cursor()
+cursor.execute(
+    """
+        SELECT month, monthly_consumption
+        FROM historical_lectures
+        WHERE sensor_id = ?
+        LIMIT 12
+""", (one_consumer_id,))
+
+anual_data = cursor.fetchall()
+
+months = []
+consumptions = []
+
+for d in anual_data:
+    months.append(d[0])
+    consumptions.append(d[1])
+
+actual_month = months[-1]
 
 # Step 1: Create a Graph and Save it as an Image
-plt.figure(figsize=(6, 4))
-plt.plot(data.keys(), data.values(), marker='o', linestyle='-', color='b')
+plt.figure(figsize=(12, 6))
+plt.plot(months, consumptions, marker='o', linestyle='-', color='b')
 plt.xlabel("Ultimos 12 meses")
 plt.ylabel("Consumo eléctrico [kWh]")
 plt.title("Consumo eléctrico de los últimos 12 meses")
 plt.grid(True)
-plt.savefig("graph.png")  # Save the graph as an image
+plt.savefig(f"{actual_month}graphic_1.png")  # Save the graph as an image
 plt.close()
 
-def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energy, monthly_cost, initial_datetime, final_datetime, actual_datetime, client_num, client_name, client_rut, client_address):
+def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energy, monthly_cost, initial_datetime, final_datetime, actual_datetime, client_num, client_first_name, client_last_name, client_address):
 
     class PDF(FPDF):    # header and footer methos are called automatically, but we have to extend the class and override them.
         
@@ -45,10 +53,10 @@ def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energ
             self.ln(5)
             self.cell(20, 20, f"Fecha de emisión: {actual_datetime}", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"Cliente: {client_name}", border=0, align="L")
+            self.cell(20, 20, f"Cliente: {client_first_name} {client_last_name}", border=0, align="L")
             self.ln(5)
-            self.cell(20, 20, f"RUT: {client_rut}", border=0, align="L")
-            self.ln(5)
+            # self.cell(20, 20, f"RUT: {client_rut}", border=0, align="L")
+            # self.ln(5)
             self.cell(20, 20, f"Dirección: {client_address}", border=0, align="L")
 
         def footer(self):
@@ -68,7 +76,7 @@ def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energ
     invoice_pdf.set_font("helvetica", size=10)
     invoice_pdf.cell(0, 0, f"Lectura inicial [kWh]: {initial_energy_lecture:,.2f}. Fecha: {initial_datetime}", align="L")
     invoice_pdf.ln(7)
-    invoice_pdf.cell(0, 0, f"Lectura final [kWh]:{final_energy_lectures:,.2f}. Fecha: {final_datetime}", align="L")
+    invoice_pdf.cell(0, 0, f"Lectura final [kWh]: {final_energy_lectures:,.2f}. Fecha: {final_datetime}", align="L")
     invoice_pdf.ln(7)
     invoice_pdf.cell(0, 0, f"Consumo eléctrico [kWh]: {monthly_comsumn_energy:,.2f}", align="L")
     invoice_pdf.ln(7)
@@ -80,7 +88,7 @@ def invoice(initial_energy_lecture, final_energy_lectures, monthly_comsumn_energ
     invoice_pdf.cell(0, 0, f"Registro historico anual", align="L")
 
     invoice_pdf.ln(10)
-    invoice_pdf.image("graph.png", x=30, w=150)
+    invoice_pdf.image(f"./{actual_month}graphic_1.png", x=30, w=150)
 
-    invoice_pdf.output(f"electric_bill.pdf")
+    invoice_pdf.output(f"Client N°{one_consumer_id}_{actual_month}_electric_bill.pdf")
 
