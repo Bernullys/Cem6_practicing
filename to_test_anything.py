@@ -50,14 +50,14 @@ map_cem6 = {
 }
 
 lectures = [map_cem6["baud rate"], map_cem6["voltage"]]
-print(lectures)
 
-leng = 255
 
-for i in range(leng):
-    if i < leng:
-        print(i)
-    i += 1
+# leng = 255
+
+# for i in range(leng):
+#     if i < leng:
+#         print(i)
+#     i += 1
 
 # Sample historical data (Months vs. Values)
 data = {
@@ -66,16 +66,25 @@ data = {
 }
 
 # Convert to DataFrame
-df = pd.DataFrame(data)
+# df = pd.DataFrame(data)
 
 # Plot the data
-plt.figure(figsize=(10, 5))
-plt.plot(df["Month"], df["Value"], marker="o", linestyle="-", color="b", label="Historical Values")
+# plt.figure(figsize=(10, 5))
+# plt.plot(df["Month"], df["Value"], marker="o", linestyle="-", color="b", label="Historical Values")
 
 # Customize the graph
-plt.title("Historical Data: Months vs. Values")
-plt.xlabel("Months")
-plt.ylabel("Values")
-plt.grid(True)
-plt.legend()
-plt.savefig("my_graph.png")
+# plt.title("Historical Data: Months vs. Values")
+# plt.xlabel("Months")
+# plt.ylabel("Values")
+# plt.grid(True)
+# plt.legend()
+# plt.savefig("my_graph.png")
+
+
+# These are the values of addresses (or indexes of registers) of the electrical parameters shown correctly on display.
+electric_parameters = [map_cem6["voltage"], map_cem6["current"], map_cem6["frecuency"], map_cem6["active power"], map_cem6["reactive power"], map_cem6["aparent power"], map_cem6["power factor"], map_cem6["total active energy consumption_2"]]
+
+these_list = [0, 1, 2, 3, 4, 5]
+
+values_i_want = list(filter(lambda x: x < 4, these_list))
+print(values_i_want)
