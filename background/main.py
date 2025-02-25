@@ -1,25 +1,64 @@
 from typing import Annotated
 from fastapi import FastAPI, BackgroundTasks, Query, Path
+from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
+from pydantic import BaseModel
 import asyncio
-import logging, time
+import logging, time, sqlite3
+
 
 from database_helpers import insert_lectures, energy_by_id_and_range
 
+# Instance of Pydantic BaseModel:
+class User(BaseModel):
+    first_name: str
+    last_name: str
+    rut: str
+    phone: str
+    email: str
+    address: str
+    sensor_id: int
+
+# Function to add a user to the database using the User instance and used on post method:
+def add_user_to_db(new_user: User):
+    connect_db = sqlite3.connect(database_name)
+    cursor_db = connect_db.cursor()
+    cursor_db.execute(
+        """
+        INSERT INTO users (first_name, last_name, rut, phone, email, address, sensor_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (new_user.first_name, new_user.last_name, new_user.rut, new_user.phone, new_user.email, new_user.address, new_user.sensor_id)
+    )
+    connect_db.commit()
+    connect_db.close()
+    return {"message": "User added successfully", "user": new_user.dict()}
+
+
 app = FastAPI()
 
+# Communicate with my frontend:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # Here will be the frontend URL in production.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Logging configuration: (Debugging)
 logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+# Modbus gateway configuration:
 gateway_ip = "192.168.0.100"
 gateway_port = 502
 cem6_ids = [2, 4]
 start_address = 0
 last_address = 97
 polling_interval = 10
-
 client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
+
 
 # Memory map modbus address in decimal
 map_cem6 = {
@@ -53,7 +92,6 @@ map_cem6 = {
     "total reactive capacitive energy generation_1": 95,
     "total reactive capacitive energy generation_2": 96,
 }
-
 # These are the values of addresses (or indexes of registers) of the electrical parameters shown correctly on display.
 electric_parameters = [map_cem6["voltage"], map_cem6["current"], map_cem6["frecuency"], map_cem6["active power"], map_cem6["reactive power"], map_cem6["aparent power"], map_cem6["power factor"], map_cem6["total active energy consumption_2"]]
 
@@ -134,3 +172,8 @@ async def energy_consumption(
         return {"Energy consumed last month": energy_by_id_and_range(device_id, "25-02-01 00:00:00", "25-02-28 23:59:59")}
     else:
         return {"Energy consumption": energy_by_id_and_range(device_id, start_time, end_time)}
+
+
+@app.post("/add_user/")
+async def add_user(new_user: User):
+    return add_user_to_db(new_user)

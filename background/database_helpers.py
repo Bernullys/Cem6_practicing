@@ -1,7 +1,9 @@
 import sqlite3
 
+# Database name:
 database_name = "energy_consumption.db"
 
+# Create/Connect to the database and then create lectures table:
 connect_db = sqlite3.connect(database_name)
 cursor_db = connect_db.cursor()
 cursor_db.execute("""
@@ -19,6 +21,22 @@ cursor_db.execute("""
         active_energy_consumption_kWh REAL
     )"""
 )
+
+# Create users table:
+cursor_db.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        rut TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT NOT NULL,
+        address TEXT NOT NULL,
+        sensor_id INTEGER NOT NULL,
+        FOREIGN KEY(sensor_id) REFERENCES lectures(sensor_id)
+    )
+""")
+
 
 def insert_lectures(lectures, sensor_id, time_stamp):
     connect_db = sqlite3.connect(database_name)
