@@ -1,8 +1,8 @@
 import { useState } from "react"
 
-
-// AddUsers take an object with the properties of Users
+// AddUsers takes from a form an object with the properties of Users
 function AddUsers () {
+    // formData set the object empty at first and then get the data using setFormData
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -12,7 +12,7 @@ function AddUsers () {
         address: "",
         sensor_id: ""
     });
-    // handleChange that spread the forData and set the value of the input in the key of the object.
+    // handleChange spread the formData and set the value of the input in the key of the object.
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value});
     }
@@ -26,7 +26,6 @@ function AddUsers () {
                 body: JSON.stringify(formData)
             });
             const data = await response.json();
-            console.log(data);
 
             if (response.ok) {
                 alert("User added successfully");
@@ -35,16 +34,14 @@ function AddUsers () {
                 alert("Response error adding user: " + data.detail);
             }
         } catch (error) {
-            console.error("Catched error adding user: ", error);
             alert("Catched error adding user: " + error);
         }
     }
 
-
 return (
     <section>
         <section>
-            <h1>Add user</h1>
+            <h1>Agregar usuario</h1>
             <form onSubmit={handleSubmit}>
                 <section>
                     <label htmlFor="">Nombre(s)</label>

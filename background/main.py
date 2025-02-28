@@ -36,7 +36,7 @@ def add_user_to_db(new_user: User):
 
 app = FastAPI()
 
-# Communicate with my frontend:
+# Communicate with my frontend / Enable CORS:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"], # Here will be the frontend URL in production.
@@ -160,7 +160,8 @@ async def read_register(
     if response.isError():
         return {f"error of device {device_id}": str(response)}
 
-    return {f"registers of device {device_id}": response.registers}
+    data = response.registers
+    return {f"data": data}
 
 @app.get("/energy_consumption/{device_id}/")
 async def energy_consumption(

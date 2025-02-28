@@ -1,4 +1,5 @@
-import AddUsers from './Components/AddUsers/AddUsers'
+import AddUsers from './Components/AddUsers/AddUsers';
+import CheckElecParam from './Components/CheckElecParam/CheckElecParam';
 import './App.css'
 
 function App() {
@@ -6,6 +7,7 @@ function App() {
   return (
     <>
       <AddUsers />
+      <CheckElecParam />
     </>
   )
 }
