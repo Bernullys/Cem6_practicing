@@ -6,7 +6,6 @@ from pydantic import BaseModel
 import asyncio
 import logging, time, sqlite3
 
-
 from database_helpers import insert_lectures, energy_by_id_and_range
 
 # Instance of Pydantic BaseModel:
@@ -19,7 +18,7 @@ class User(BaseModel):
     address: str
     sensor_id: int
 
-# Function to add a user to the database using the User instance and used on post method:
+# Function to add a user to the database using the User instance and then to be used on post method:
 def add_user_to_db(new_user: User):
     connect_db = sqlite3.connect(database_name)
     cursor_db = connect_db.cursor()
@@ -32,7 +31,6 @@ def add_user_to_db(new_user: User):
     connect_db.commit()
     connect_db.close()
     return {"message": "User added successfully", "user": new_user.dict()}
-
 
 app = FastAPI()
 
@@ -56,9 +54,8 @@ gateway_port = 502
 cem6_ids = [2, 4]
 start_address = 0
 last_address = 97
-polling_interval = 10
+polling_interval = 300
 client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
-
 
 # Memory map modbus address in decimal
 map_cem6 = {
@@ -98,7 +95,6 @@ electric_parameters = [map_cem6["voltage"], map_cem6["current"], map_cem6["frecu
 # Datababase name:
 database_name = "energy_consumption.db"
 
-
 # Flag to control the polling loop
 running = True
 
@@ -119,26 +115,22 @@ async def poll_modbus():
                 else:
                     registers = response.registers
                     logging.info(f"Received Registers from device: {device_id}, registers: {registers}")
-                    # Here is where will get store in a database
                     # Here I have to filter the values I want to store in the database
                     lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
                     # Datetime value
                     current_time = time.localtime()
                     date_time = time.strftime("%y-%m-%d %H:%M:%S", current_time)
+                    # Here is where will get store in a database
                     insert_lectures(lectures, device_id, date_time)
-
         except Exception as e:
             logging.error(f"Exception in Modbus polling: {e}")
-
         await asyncio.sleep(polling_interval)
-
 
 @app.get("/start")
 async def start_polling(background_tasks: BackgroundTasks):
     """Start the Modbus polling in the background."""
     background_tasks.add_task(poll_modbus)
     return {"message": "Modbus polling started"}
-
 
 @app.get("/stop")
 async def stop_polling():
@@ -147,21 +139,30 @@ async def stop_polling():
     running = False
     return {"message": "Modbus polling stopped"}
 
-
 @app.get("/read/{device_id}")
 async def read_register(
     device_id: Annotated[int, Path(ge=1, le=254)], 
-    start_add: Annotated[int | None, Query(ge=0, le=97)] = 0, 
-    end_add: Annotated[int | None, Query(ge=1, le=97)] = 1
     ):
     """Read specific registers on demand."""
-    response = client.read_holding_registers(address=start_add, count=end_add, slave=device_id)
-
+    response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
     if response.isError():
         return {f"error of device {device_id}": str(response)}
-
-    data = response.registers
-    return {f"data": data}
+    registers = response.registers
+    lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
+    current_time = time.localtime()
+    date_time = time.strftime("%y-%m-%d %H:%M:%S", current_time)
+    return {
+        "sensor_id": device_id,
+        "datetime": date_time,
+        "voltage": lectures[0],
+        "current": lectures[1],
+        "frecuency": lectures[2],
+        "active_power": lectures[3],
+        "reactive_power": lectures[4],
+        "aparent_power": lectures[5],
+        "power_factor": lectures[6],
+        "active_energy": lectures[7]
+        }
 
 @app.get("/energy_consumption/{device_id}/")
 async def energy_consumption(
@@ -173,7 +174,6 @@ async def energy_consumption(
         return {"Energy consumed last month": energy_by_id_and_range(device_id, "25-02-01 00:00:00", "25-02-28 23:59:59")}
     else:
         return {"Energy consumption": energy_by_id_and_range(device_id, start_time, end_time)}
-
 
 @app.post("/add_user/")
 async def add_user(new_user: User):

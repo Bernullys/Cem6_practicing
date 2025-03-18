@@ -37,7 +37,7 @@ cursor_db.execute("""
     )
 """)
 
-
+# Insert values from devices into the database:
 def insert_lectures(lectures, sensor_id, time_stamp):
     connect_db = sqlite3.connect(database_name)
     cursor_db = connect_db.cursor()
@@ -50,7 +50,7 @@ def insert_lectures(lectures, sensor_id, time_stamp):
     connect_db.commit()
     connect_db.close()
 
-
+# Read energy from a device in a selected range of time:
 def energy_by_id_and_range(sensor_id, start_time, end_time):
     connect_db = sqlite3.connect(database_name)
     cursor_db = connect_db.cursor()

@@ -1,47 +1,46 @@
-function CardElecParam ( { sensor_id, date_time, voltage, current, frecuency, active_power, reactive_power, apparent_power, power_factor, energy_active } ) {
+function CardElecParam ( { sensor_id, datetime, voltage, current, frecuency, active_power, reactive_power, apparent_power, power_factor, energy_active } ) {
     return (
         <section>
             <section>
-                <h1>Parámetros eléctricos</h1>
                 <section>
                     <section>
-                        <h2>ID del medidor</h2>
+                        <h3>ID del medidor:</h3>
                         <p>{sensor_id}</p>
                     </section>
                     <section>
-                        <h2>Fecha y hora</h2>
-                        <p>{date_time}</p>
+                        <h3>Fecha y hora:</h3>
+                        <p>{datetime}</p>
                     </section>
                     <section>
-                        <h2>Voltaje</h2>
+                        <h3>Voltaje:</h3>
                         <p>{voltage}</p>
                     </section>
                     <section>
-                        <h2>Corriente</h2>
+                        <h3>Corriente:</h3>
                         <p>{current}</p>
                     </section>
                     <section>
-                        <h2>Frecuencia</h2>
+                        <h3>Frecuencia:</h3>
                         <p>{frecuency}</p>
                     </section>
                     <section>
-                        <h2>Potencia activa</h2>
+                        <h3>Potencia activa:</h3>
                         <p>{active_power}</p>
                     </section>
                     <section>
-                        <h2>Potencia reactiva</h2>
+                        <h3>Potencia reactiva:</h3>
                         <p>{reactive_power}</p>
                     </section>
                     <section>
-                        <h2>Potencia aparente</h2>
+                        <h3>Potencia aparente:</h3>
                         <p>{apparent_power}</p>
                     </section>
                     <section>
-                        <h2>Factor de potencia</h2>
+                        <h3>Factor de potencia:</h3>
                         <p>{power_factor}</p>
                     </section>
                     <section>
-                        <h2>Energía activa</h2>
+                        <h3>Energía activa:</h3>
                         <p>{energy_active}</p>
                     </section>
                 </section>

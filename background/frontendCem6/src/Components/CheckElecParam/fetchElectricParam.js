@@ -1,6 +1,6 @@
 async function fetchElecParam (device_id) {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/read/${device_id}?start_add=0&end_add=9`, {
+        const response = await fetch(`http://127.0.0.1:8000/read/${device_id}`, {
             method: "GET",
             mode: "cors",
             headers: { "Content-Type": "application/json"},
@@ -12,7 +12,7 @@ async function fetchElecParam (device_id) {
         }
         const result = await response.json();
         console.log("Fetched data: ", result);
-        return result.data || [];
+        return result;
 
     } catch (error) {
         console.error("Error fetching electric parameters: ", error);

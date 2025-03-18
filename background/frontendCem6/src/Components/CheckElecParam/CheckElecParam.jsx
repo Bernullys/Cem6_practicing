@@ -6,12 +6,10 @@ import fetchElecParam from "./fetchElectricParam";
 function CheckElecParam () {
     
     const [device_id, setDeviceId] = useState("");
-    const [data, setData] = useState([]);
+    const [data, setData] = useState({});
 
     const handleData = async(e) => {
         e.preventDefault();
-
-        
         const fetchedData = await fetchElecParam(device_id);
         console.log(fetchedData);
         setData(fetchedData);
@@ -20,10 +18,7 @@ function CheckElecParam () {
 
     return (
         <section>
-            <h1>Consultar parametros electricos</h1>
-            <section>
-                <h2>Parametros electricos</h2>
-            </section>
+            <h1>Consultar parámetros eléctricos actuales (instantaneos)</h1>
             <section>
                 <form onSubmit={handleData}>
                     <section>
@@ -36,23 +31,19 @@ function CheckElecParam () {
                 </form>
             </section>
             <section>
-                <h3>Parametros</h3>
                 {
-                    data.map((electricParameters, index) => (
-                        <CardElecParam 
-                            key={index}
-                            sensor_id={electricParameters.sensor_id}
-                            date_time={electricParameters.date_time}
-                            voltage={electricParameters.voltage}
-                            current={electricParameters.current}
-                            frecuency={electricParameters.frecuency}
-                            active_power={electricParameters.active_power}
-                            reactive_power={electricParameters.reactive_power}
-                            apparent_power={electricParameters.apparent_power}
-                            power_factor={electricParameters.power_factor}
-                            energy_active={electricParameters.energy_active}
-                        />
-                    ))
+                    <CardElecParam 
+                        sensor_id={data.sensor_id}
+                        datetime={data.datetime}
+                        voltage={data.voltage}
+                        current={data.current}
+                        frecuency={data.frecuency}
+                        active_power={data.active_power}
+                        reactive_power={data.reactive_power}
+                        apparent_power={data.apparent_power}
+                        power_factor={data.power_factor}
+                        energy_active={data.active_power}
+                    />
                 }
             </section>
         </section>
