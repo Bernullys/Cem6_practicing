@@ -1,6 +1,6 @@
 import { useState } from "react";
 import CardElecParam from "../CardElecParam/CardElecParam";
-import fetchElecParam from "./fetchElectricParam";
+import { fetchElecParam } from "../../../fetchHelpers";
 
 
 function CheckElecParam () {
@@ -17,8 +17,8 @@ function CheckElecParam () {
     }
 
     return (
-        <section>
-            <h1>Consultar parámetros eléctricos actuales (instantaneos)</h1>
+        <section className="checkElecParam_main_container">
+            <h2>Consultar parámetros eléctricos actuales (instantaneos)</h2>
             <section>
                 <form onSubmit={handleData}>
                     <section>
@@ -40,7 +40,7 @@ function CheckElecParam () {
                         frecuency={data.frecuency}
                         active_power={data.active_power}
                         reactive_power={data.reactive_power}
-                        apparent_power={data.apparent_power}
+                        apparent_power={data.aparent_power}
                         power_factor={data.power_factor}
                         energy_active={data.active_power}
                     />

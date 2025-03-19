@@ -39,10 +39,10 @@ function AddUsers () {
     }
 
 return (
-    <section>
+    <section className="addUsers_main_container">
         <section>
-            <h1>Agregar usuario</h1>
-            <form onSubmit={handleSubmit}>
+            <h2>Agregar usuario</h2>
+            <form onSubmit={handleSubmit} className="addUsers_form">
                 <section>
                     <label htmlFor="">Nombre(s)</label>
                     <input onChange={handleChange} value={formData.first_name} required placeholder="Nombre"  type="text" name="first_name" id="" />
