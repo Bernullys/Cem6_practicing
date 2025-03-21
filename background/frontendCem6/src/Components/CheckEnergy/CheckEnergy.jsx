@@ -14,7 +14,7 @@ function CheckEnergy () {
         const response = await fetchEnergy(deviceId)
         setData(response)
     }
-    console.log(data)
+    console.log(data["Energy consumed last month"])
 
     // I have to create a function that get the value of the deviceID and alse the dates.
     const [deviceId, setDeviceId] = useState("");
@@ -38,7 +38,20 @@ function CheckEnergy () {
 
     return (
         <section>
-            <h2>Consultar consumo de energía eléctrica</h2>
+            <h2>Consultar consumo de energía eléctrica del mes anterior</h2>
+            <section>
+                <form onSubmit={handleEnergy}>
+                    <section>
+                        <label htmlFor="deviceId">ID del medidor</label>
+                        <input type="number" name="deviceId" required value={deviceId} onChange={handleDeviceId}/>
+                    </section>
+                    <button type="submit">Buscar</button>
+                    <section>
+                        <p>Energía {data["Energy consumed last month"]} [kWh]</p>
+                    </section>
+                </form>
+            </section>
+            <h2>Consultar consumo de energía eléctrica entre fechas</h2>
             <section>
                 <form onSubmit={handleEnergy}>
                     <section>

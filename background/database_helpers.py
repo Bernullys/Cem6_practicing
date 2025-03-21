@@ -57,6 +57,6 @@ def energy_by_id_and_range(sensor_id, start_time, end_time):
     cursor_db.execute("""
     SELECT MAX(active_energy_consumption_kWh) - MIN(active_energy_consumption_kWh) FROM lectures WHERE sensor_id = ? AND lecture_time BETWEEN ? AND ?
     """, (sensor_id, start_time, end_time))
-    energy_consumption = cursor_db.fetchall()
+    energy_consumption = cursor_db.fetchone()
     connect_db.close()
-    return energy_consumption
+    return energy_consumption[0]

@@ -1,20 +1,23 @@
 import time
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from background.database_helpers import insert_lectures, energy_by_id_and_range
+
 data_time = time.localtime()
 formated_data_time = time.strftime("%y-%m-%d %H:%M:%S", data_time)
-print(formated_data_time)
-print(type(formated_data_time))
+#print(formated_data_time)
+#print(type(formated_data_time))
 
 list_of_data = [2200, 0, 500]
 
 list_of_data.append(formated_data_time)
 
-print(list_of_data)
+#print(list_of_data)
 
-for ind, l in enumerate(list_of_data):
-    print(ind, l)
+#for ind, l in enumerate(list_of_data):
+#    print(ind, l)
 
 # Memory map modbus address in decimal
 map_cem6 = {
@@ -87,4 +90,21 @@ electric_parameters = [map_cem6["voltage"], map_cem6["current"], map_cem6["frecu
 these_list = [0, 1, 2, 3, 4, 5]
 
 values_i_want = list(filter(lambda x: x < 4, these_list))
-print(values_i_want)
+#print(values_i_want)
+
+full_datetime = datetime.now()
+date_time = time.strftime("%Y-%m-%d %H:%M:%S")
+date = time.strftime("%x")
+month = time.strftime("%B")
+year = time.strftime("%Y")
+time_stamp = time.strftime("%H:%M:%S")
+
+print(date_time, date, month, year, time_stamp, full_datetime)
+
+first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
+
+print(first_day_previous_month, last_day_previous_month)
+
+
+print(energy_by_id_and_range(4, "2025-02-21 15:44:04", "2025-02-28 16:08:27"))

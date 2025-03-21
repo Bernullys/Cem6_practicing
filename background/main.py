@@ -5,8 +5,21 @@ from pymodbus.client import ModbusTcpClient
 from pydantic import BaseModel
 import asyncio
 import logging, time, sqlite3
+from datetime import datetime, timedelta
 
+# Importing functions from database_helpers.py:
 from database_helpers import insert_lectures, energy_by_id_and_range
+
+# Defining date and time variables:
+full_datetime = datetime.now()
+date_time = time.strftime("%Y-%m-%d %H:%M:%S")
+date = time.strftime("%x")
+month = time.strftime("%B")
+year = time.strftime("%Y")
+time_stamp = time.strftime("%H:%M:%S")
+first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
+
 
 # Instance of Pydantic BaseModel:
 class User(BaseModel):
@@ -37,7 +50,7 @@ app = FastAPI()
 # Communicate with my frontend / Enable CORS:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], # Here will be the frontend URL in production.
+    allow_origins=["http://127.0.0.1:5173"], # Here will be the frontend URL in production.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -117,9 +130,6 @@ async def poll_modbus():
                     logging.info(f"Received Registers from device: {device_id}, registers: {registers}")
                     # Here I have to filter the values I want to store in the database
                     lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
-                    # Datetime value
-                    current_time = time.localtime()
-                    date_time = time.strftime("%y-%m-%d %H:%M:%S", current_time)
                     # Here is where will get store in a database
                     insert_lectures(lectures, device_id, date_time)
         except Exception as e:
@@ -149,8 +159,6 @@ async def read_register(
         return {f"error of device {device_id}": str(response)}
     registers = response.registers
     lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
-    current_time = time.localtime()
-    date_time = time.strftime("%y-%m-%d %H:%M:%S", current_time)
     return {
         "sensor_id": device_id,
         "datetime": date_time,
@@ -171,7 +179,7 @@ async def energy_consumption(
     end_time: Annotated[str, Query()] = None
     ):
     if not start_time or not end_time:
-        return {"Energy consumed last month": energy_by_id_and_range(device_id, "25-02-01 00:00:00", "25-02-28 23:59:59")}
+        return {"Energy consumed last month": energy_by_id_and_range(device_id, first_day_previous_month, last_day_previous_month)}
     else:
         return {"Energy consumption": energy_by_id_and_range(device_id, start_time, end_time)}
 
