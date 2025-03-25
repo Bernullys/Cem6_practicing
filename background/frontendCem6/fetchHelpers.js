@@ -22,9 +22,9 @@ export async function fetchElecParam (device_id) {
     }
 }
 
-export async function fetchEnergy (device_id) {
+export async function fetchEnergy (device_id, start_time, end_time) {
     try {
-        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}`, {
+        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}/?start_time=${start_time}&end_time=${end_time}`, {
             method: "GET",
             mode: "cors",
             headers: {"Content-Type": "application/json"}

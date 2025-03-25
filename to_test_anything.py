@@ -95,7 +95,7 @@ values_i_want = list(filter(lambda x: x < 4, these_list))
 full_datetime = datetime.now()
 date_time = time.strftime("%Y-%m-%d %H:%M:%S")
 date = time.strftime("%x")
-month = time.strftime("%B")
+month = time.strftime("%b")
 year = time.strftime("%Y")
 time_stamp = time.strftime("%H:%M:%S")
 
@@ -105,6 +105,20 @@ first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).re
 last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
 
 print(first_day_previous_month, last_day_previous_month)
+print(time.strftime("%d") == "24")
 
+def time_variables():
+    full_datetime = datetime.now()
+    date_time = time.strftime("%Y-%m-%d %H:%M:%S")
+    date = time.strftime("%x")
+    month = time.strftime("%B")
+    year = time.strftime("%Y")
+    time_stamp = time.strftime("%H:%M:%S")
+    day = time.strftime("%d")
+    hour = time.strftime("%H")
+    minute = time.strftime("%M")
+    first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
+    return [full_datetime, date_time, date, month, year, time_stamp, day, hour, minute, first_day_previous_month, last_day_previous_month]
 
-print(energy_by_id_and_range(4, "2025-02-21 15:44:04", "2025-02-28 16:08:27"))
+print(time_variables()[4])

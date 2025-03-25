@@ -23,7 +23,7 @@ function CheckElecParam () {
                 <form onSubmit={handleData}>
                     <section>
                         <label htmlFor="device_id">ID del medidor</label>
-                        <input onChange={(e) => setDeviceId(e.target.value)} value={device_id} type="number" name="device_id" id="device_id" />
+                        <input onChange={(e) => setDeviceId(e.target.value)} value={device_id} type="number" name="device_id" id="device_id" required />
                     </section>
                     <section>
                         <button type="submit" >Buscar</button>

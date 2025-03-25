@@ -20,17 +20,19 @@ button {
 }
 
 /* AddUsers styles */
-
+.checkEnergy_main_container,
 .addUsers_main_container {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.checkEnergy_main_container form,
 .addUsers_form {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+.checkEnergy_main_container form section,
 .addUsers_form section {
   width: 28%;
   display: flex;
