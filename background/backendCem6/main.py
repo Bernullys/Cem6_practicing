@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
 from pydantic import BaseModel
 import asyncio
-import logging, time, sqlite3
+import logging, time
 from datetime import datetime, timedelta
 
-# Importing functions from database_helpers.py:
+# Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data
-from invoice_pdf_maker import invoice
+from invoice_pdf_maker import invoice, graph_maker
 
 # Instance of Pydantic BaseModel:
 class User(BaseModel):
@@ -21,6 +21,7 @@ class User(BaseModel):
     address: str
     sensor_id: int
 
+# Creating a FastAPI instance:
 app = FastAPI()
 
 # Communicate with my frontend / Enable CORS:
@@ -127,35 +128,36 @@ async def poll_modbus():
                     # Here is where will get store in a database
                     insert_lectures(lectures, device_id, actual_time_variables[1])
                     # Now add the monthly energy consumption to the historical_lectures table:
-                    if actual_time_variables[6] == "25" and actual_time_variables[7] == "13" and int(actual_time_variables[8]) <= 15:
+                    if actual_time_variables[6] == "1" and actual_time_variables[7] == "00" and int(actual_time_variables[8]) <= 15:
                         energy_to_historical_table = energy_by_id_and_range(device_id, actual_time_variables[9], actual_time_variables[10])
                         add_monthly_consumption_to_db(device_id, actual_time_variables[3], actual_time_variables[4], energy_to_historical_table)
         except Exception as e:
             logging.error(f"Exception in Modbus polling: {e}")
         await asyncio.sleep(polling_interval)
 
+# Start the background task so the application starts:
 @app.get("/start")
 async def start_polling(background_tasks: BackgroundTasks):
-    """Start the Modbus polling in the background."""
     background_tasks.add_task(poll_modbus)
     return {"message": "Modbus polling started"}
 
+# Stop the background task so the application stops:
 @app.get("/stop")
 async def stop_polling():
-    """Stop the Modbus polling."""
     global running
     running = False
     return {"message": "Modbus polling stopped"}
 
+# Add user endpiont:
 @app.post("/add_user/")
 async def add_user(new_user: User):
     return add_user_to_db(new_user)
 
+# Read actual time registers endpoint for a specific device:
 @app.get("/read/{device_id}")
 async def read_register(
     device_id: Annotated[int, Path(ge=1, le=254)], 
     ):
-    """Read specific registers on demand."""
     response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
     if response.isError():
         return {f"error of device {device_id}": str(response)}
@@ -174,6 +176,7 @@ async def read_register(
         "active_energy": lectures[7]
         }
 
+# Read energy consumption endpoint for a specific device by range or last month by default:
 @app.get("/energy_consumption/{device_id}/")
 async def energy_consumption_by_range(
     device_id: Annotated[int, Path(ge=1, le=254)],
@@ -196,13 +199,13 @@ async def energy_consumption_by_range(
         "to": end_time
         }
 
-# I have to make an endpoint which create a PDF invoice for a specific user.
+# Create a PDF invoice for a specific user.
 @app.get("/invoice/{sensor_id}")
 async def print_invoice(sensor_id: int):
     actual_time_variables = time_variables()
     first_day_previous_month = actual_time_variables[9]
     last_day_previous_month = actual_time_variables[10]
-    invoice_data = await bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id)
+    invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id)
     first_month_lecture = invoice_data[0]
     last_month_lecture = invoice_data[1]
     monthly_energy_consumption = invoice_data[2]
@@ -211,8 +214,9 @@ async def print_invoice(sensor_id: int):
     client_first_name = invoice_data[5]
     client_last_name = invoice_data[6]
     client_address = invoice_data[7]
+    graph_maker(sensor_id, database_name)
     invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, actual_time_variables[1], client_num, client_first_name, client_last_name, client_address)
     return {"message": "Invoice created"}
-# I have a file with the invoice template and I have to fill it with the user data and the energy consumption data. I have to call that function here. I need to pass it all the arguments it needs to fill the invoice.
-# So I need to make a query to the database to get the user data and the energy consumption data.
+
+
 # For the future: I need to create a function that will be called by the background task to create the invoice and send it to the user by email.

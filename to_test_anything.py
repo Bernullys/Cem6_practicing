@@ -3,6 +3,10 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import asyncio
+
+from background.database_helpers import bring_invoice_data
+
 from background.database_helpers import insert_lectures, energy_by_id_and_range
 
 data_time = time.localtime()
@@ -121,4 +125,24 @@ def time_variables():
     last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
     return [full_datetime, date_time, date, month, year, time_stamp, day, hour, minute, first_day_previous_month, last_day_previous_month]
 
-print(time_variables()[4])
+times_var = time_variables()
+print("jejejeje", times_var[9], times_var[10])  
+
+
+def print_invoice(sensor_id: int):
+    actual_time_variables = time_variables()
+    first_day_previous_month = actual_time_variables[9]
+    last_day_previous_month = actual_time_variables[10]
+    print("jojojo", first_day_previous_month, last_day_previous_month)
+    invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id)
+    first_month_lecture = invoice_data[0]
+    last_month_lecture = invoice_data[1]
+    monthly_energy_consumption = invoice_data[2]
+    monthly_cost = invoice_data[3]
+    client_num = invoice_data[4]
+    client_first_name = invoice_data[5]
+    client_last_name = invoice_data[6]
+    client_address = invoice_data[7]
+    print(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, actual_time_variables[1], client_num, client_first_name, client_last_name, client_address)
+
+datass = print_invoice(4)

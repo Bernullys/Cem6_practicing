@@ -51,7 +51,6 @@ cursor_db.execute(
 connect_db.commit()
 connect_db.close()
 
-
 # Function to add a user to the database using the User instance and then to be used on post method:
 def add_user_to_db(new_user):
     connect_db = sqlite3.connect(database_name)
@@ -104,21 +103,21 @@ def add_monthly_consumption_to_db(sensor_id, month, year, monthly_energy_consump
     connect_db.close()
 
 # Funtion to query all the data we need to print the invoice:
-async def bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id):
+def bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id):
     connect_db = sqlite3.connect(database_name)
     cursor_db = connect_db.cursor()
     # Bring data from lectures table:
     cursor_db.execute(
-        """"
+        """
             SELECT MIN(active_energy_consumption_kWh), MAX(active_energy_consumption_kWh)
             FROM lectures
-            WHERE lecture_time BETWEEN ? AND ?
-        """,(first_day_previous_month, last_day_previous_month)
+            WHERE sensor_id = ? AND lecture_time BETWEEN ? AND ?
+        """,(int(sensor_id), str(first_day_previous_month), str(last_day_previous_month))
     )
     data_from_lectures = cursor_db.fetchone()
     first_month_lecture = data_from_lectures[0]
     last_month_lecture = data_from_lectures[1]
-    month_energy_consumption = (float(last_month_lecture) - float(first_month_lecture))/100 # In kWh
+    month_energy_consumption = (last_month_lecture - first_month_lecture) # In kWh
     monthly_cost = month_energy_consumption * 123
     # Now bring the info of the customer:
     cursor_db.execute(
@@ -135,3 +134,32 @@ async def bring_invoice_data(first_day_previous_month, last_day_previous_month, 
     connect_db.close()
     return [first_month_lecture, last_month_lecture, month_energy_consumption, monthly_cost, client_num, client_first_name, client_last_name, client_address]
 
+# async def bring_invoice_data(start_time, end_time, sensor_id):
+#     try:
+#         conn = sqlite3.connect("energy_consumption.db")
+#         cursor_db = conn.cursor()
+        
+#         # Log the query parameters
+#         logging.info(f"Fetching invoice data for sensor_id={sensor_id}, start_time={start_time}, end_time={end_time}")
+        
+#         # Format the query
+#         cursor_db.execute(
+#             """
+#             SELECT MIN(active_energy_consumption_kWh), MAX(active_energy_consumption_kWh)
+#             FROM lectures
+#             WHERE sensor_id = ? AND lecture_time BETWEEN ? AND ?
+#             """,
+#             (sensor_id, start_time, end_time)
+#         )
+        
+#         invoice_data = cursor_db.fetchone()
+#         conn.close()
+        
+#         if not invoice_data:
+#             logging.error("No data found for the specified sensor_id and date range.")
+#             return None
+        
+#         return invoice_data
+#     except sqlite3.OperationalError as e:
+#         logging.error(f"Database error: {e}")
+#         raise
