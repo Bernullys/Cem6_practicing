@@ -42,7 +42,7 @@ function CheckElecParam () {
                         reactive_power={data.reactive_power}
                         apparent_power={data.aparent_power}
                         power_factor={data.power_factor}
-                        energy_active={data.active_power}
+                        energy_active={data.active_energy}
                     />
                 }
             </section>

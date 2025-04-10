@@ -47,12 +47,12 @@ function CheckEnergy () {
                         <input type="number" name="deviceId" required value={deviceId} onChange={handleDeviceId} placeholder="Número del medidor"/>
                     </section>
                     <section>
-                        <label htmlFor="startDate">Fecha inicial</label>
-                        <input type="text" name="startDate" value={startDate} onChange={handleStartDate} placeholder="AAAA-MM-DD"/>
+                        <label htmlFor="startDate">Fecha y Hora inicial</label>
+                        <input type="text" name="startDate" value={startDate} onChange={handleStartDate} placeholder="AAAA-MM-DD hh:mm:ss"/>
                     </section>
                     <section>
-                        <label htmlFor="endDate">Fecha final</label>
-                        <input type="text" name="endDate" value={endDate} onChange={handleEndDate} placeholder="AAAA-MM-DD"/>
+                        <label htmlFor="endDate">Fecha y Hora final</label>
+                        <input type="text" name="endDate" value={endDate} onChange={handleEndDate} placeholder="AAAA-MM-DD hh:mm:ss"/>
                     </section>
                     <button type="submit">Buscar</button>
                 </form>

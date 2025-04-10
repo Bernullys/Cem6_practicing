@@ -128,7 +128,7 @@ async def poll_modbus():
                     # Here is where will get store in a database
                     insert_lectures(lectures, device_id, actual_time_variables[1])
                     # Now add the monthly energy consumption to the historical_lectures table:
-                    if actual_time_variables[6] == "1" and actual_time_variables[7] == "00" and int(actual_time_variables[8]) <= 15:
+                    if actual_time_variables[6] == "01" and actual_time_variables[7] == "00" and int(actual_time_variables[8]) <= 15:
                         energy_to_historical_table = energy_by_id_and_range(device_id, actual_time_variables[9], actual_time_variables[10])
                         add_monthly_consumption_to_db(device_id, actual_time_variables[3], actual_time_variables[4], energy_to_historical_table)
         except Exception as e:

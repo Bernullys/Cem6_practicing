@@ -7,9 +7,9 @@
 -- SET "lecture_time" = '20' || "lecture_time"
 -- WHERE "lecture_time" LIKE '25%';
 
--- SELECT MAX(active_energy_consumption_kWh), MIN(active_energy_consumption_kWh)
--- FROM lectures 
--- WHERE sensor_id = 4 AND lecture_time BETWEEN '2025-03-00 00:00:00' AND '2025-03-28 23:59:59';
+-- UPDATE "historical_lectures"
+-- SET "monthly_consumption" = 289.00
+-- WHERE "month" = 'March' AND "year" = '2025';
 
 -- SELECT COUNT("active_energy_consumption_kWh")
 -- FROM "lectures"
@@ -32,6 +32,12 @@
 --     (4, 'february', '2024', 325.2)
 -- ;
 
-SELECT MIN(active_energy_consumption_kWh), MAX(active_energy_consumption_kWh)
-FROM lectures
-WHERE sensor_id = 2 AND lecture_time BETWEEN '2025-02-01 00:00:00' AND '2025-02-28 23:59:00';
+-- SELECT active_energy_consumption_kWh
+-- FROM lectures
+-- WHERE sensor_id = 2;
+
+-- SELECT COUNT(*) FROM "lectures"
+-- WHERE  "sensor_id" = 4 AND "active_energy_consumption_kWh" > 0;
+
+-- DELETE FROM "historical_lectures"
+-- WHERE "month" = 'April';

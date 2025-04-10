@@ -41,3 +41,23 @@ export async function fetchEnergy (device_id, start_time, end_time) {
         return []
     }
 }
+
+export async function fetchInvoice (device_id) {
+    try {
+        const response = await fetch(`${baseEndPoint}/invoice/${device_id}`, {
+            method: "GET",
+            mode: "cors",
+            headers: {"Content-Type": "application/json"}
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || "Failed to fetch invoice")
+        }
+        const result = await response.json()
+        console.log("Fetch Invoice: ", result);
+        return result;
+    } catch (error) {
+        console.log("Error fetching invoice: ", error);
+        return []
+    }
+}
