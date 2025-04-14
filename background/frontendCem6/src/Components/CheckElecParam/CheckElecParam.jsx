@@ -11,9 +11,8 @@ function CheckElecParam () {
     const handleData = async(e) => {
         e.preventDefault();
         const fetchedData = await fetchElecParam(device_id);
-        console.log(fetchedData);
+        console.log(fetchedData, "electric parameters");
         setData(fetchedData);
-
     }
 
     return (

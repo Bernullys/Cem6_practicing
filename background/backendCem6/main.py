@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import FastAPI, BackgroundTasks, Query, Path
+from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
 from pydantic import BaseModel
@@ -8,7 +8,7 @@ import logging, time
 from datetime import datetime, timedelta
 
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
-from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data
+from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
 from invoice_pdf_maker import invoice, graph_maker
 
 # Instance of Pydantic BaseModel:
@@ -20,6 +20,24 @@ class User(BaseModel):
     email: str
     address: str
     sensor_id: int
+
+# User response model:
+class UserResponse(BaseModel):
+    message: str
+    user: User
+
+# Device ID response model:
+class DeviceIdParamResponse(BaseModel):
+        sensor_id: int
+        datetime: str
+        voltage: float
+        current: float
+        frequency: float
+        active_power: float
+        reactive_power: float
+        aparent_power: float
+        power_factor: float
+        active_energy: float
 
 # Creating a FastAPI instance:
 app = FastAPI()
@@ -34,9 +52,9 @@ app.add_middleware(
 )
 
 # Logging configuration: (Debugging)
-logging.basicConfig()
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+# logging.basicConfig()
+# log = logging.getLogger()
+# log.setLevel(logging.DEBUG)
 
 # Modbus gateway configuration:
 gateway_ip = "192.168.0.100"
@@ -149,18 +167,27 @@ async def stop_polling():
     return {"message": "Modbus polling stopped"}
 
 # Add user endpiont:
-@app.post("/add_user/")
+@app.post("/add_user/", response_model=UserResponse)
 async def add_user(new_user: User):
     return add_user_to_db(new_user)
 
 # Read actual time registers endpoint for a specific device:
-@app.get("/read/{device_id}")
-async def read_register(
-    device_id: Annotated[int, Path(ge=1, le=254)], 
-    ):
+@app.get("/read/{device_id}", response_model=DeviceIdParamResponse)
+async def read_register(device_id: Annotated[int, Path(ge=1, le=254)]):
     response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
+    # Checking existin device ids in the database:
+    device_ids = get_current_devices()
+    if device_id not in device_ids:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Device {device_id} not found in the database."
+        )
     if response.isError():
-        return {f"error of device {device_id}": str(response)}
+        raise HTTPException(
+            status_code=502,
+            detail=f"Error of device {device_id}, did not respond. Error:{response}"
+        )
+    # Defining the response list:
     registers = response.registers
     lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
     return {
@@ -168,13 +195,13 @@ async def read_register(
         "datetime": time_variables()[1],
         "voltage": lectures[0],
         "current": lectures[1],
-        "frecuency": lectures[2],
+        "frequency": lectures[2],
         "active_power": lectures[3],
         "reactive_power": lectures[4],
         "aparent_power": lectures[5],
         "power_factor": lectures[6],
         "active_energy": lectures[7]
-        }
+    }
 
 # Read energy consumption endpoint for a specific device by range or last month by default:
 @app.get("/energy_consumption/{device_id}/")

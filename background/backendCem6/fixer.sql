@@ -1,3 +1,41 @@
+-- Create the database and then create lectures table:
+CREATE TABLE IF NOT EXISTS "lectures" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "sensor_id" INTEGER NOT NULL,
+    "lecture_time" TEXT,
+    "voltage_V" REAL,
+    "current_A" REAL,
+    "frecuency_Hz" REAL,
+    "active_power_W" REAL,
+    "reactive_power_var" REAL,
+    "aparent_power_VA" REAL,
+    "power_factor" REAL,
+    "active_energy_consumption_kWh" REAL
+);
+
+-- Create users table:
+CREATE TABLE IF NOT EXISTS "users" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" TEXT NOT NULL,
+    "last_name" TEXT NOT NULL,
+    "rut" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "sensor_id" INTEGER UNIQUE NOT NULL,
+    FOREIGN KEY("sensor_id") REFERENCES lectures("sensor_id")
+);
+
+-- Create historical lectures table to store the monthly energy consumption on the database, and then to be used as historical for the graphic.
+CREATE TABLE IF NOT EXISTS "historical_lectures" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "sensor_id" INTEGER NOT NULL,
+    "month" TEXT NOT NULL,
+    "year" TEXT NOT NULL,
+    "monthly_consumption" REAL,
+    FOREIGN KEY("sensor_id") REFERENCES lectures("sensor_id")
+);
+
 -- SELECT "lecture_time" FROM "lectures";
 
 -- DELETE FROM "lectures"

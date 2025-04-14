@@ -13,7 +13,7 @@ function CheckEnergy () {
         const response = await fetchEnergy(deviceId, startDate, endDate)
         setData(response)
     }
-    console.log(data["energy"])
+    console.log(data["energy"], "data [energy]")
 
     // I have to create a function that get the value of the deviceID and alse the dates.
     const [deviceId, setDeviceId] = useState("");

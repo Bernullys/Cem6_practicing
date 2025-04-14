@@ -3,80 +3,30 @@ import sqlite3
 # Database name:
 database_name = "energy_consumption.db"
 
-# Create/Connect to the database and then create lectures table:
-connect_db = sqlite3.connect(database_name)
-cursor_db = connect_db.cursor()
-cursor_db.execute("""
-    CREATE TABLE IF NOT EXISTS lectures (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sensor_id INTEGER NOT NULL,
-        lecture_time TEXT,
-        voltage_V REAL,
-        current_A REAL,
-        frecuency_Hz REAL,
-        active_power_W REAL,
-        reactive_power_var REAL,
-        aparent_power_VA REAL,
-        power_factor REAL,
-        active_energy_consumption_kWh REAL
-    )"""
-)
-
-# Create users table:
-cursor_db.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        first_name TEXT NOT NULL,
-        last_name TEXT NOT NULL,
-        rut TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        email TEXT NOT NULL,
-        address TEXT NOT NULL,
-        sensor_id INTEGER NOT NULL,
-        FOREIGN KEY(sensor_id) REFERENCES lectures(sensor_id)
-    )
-""")
-
-# Create historical lectures table to store the monthly energy consumption on the database, and then to be used as historical for the graphic.
-cursor_db.execute(
-    """
-        CREATE TABLE IF NOT EXISTS historical_lectures (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sensor_id INTEGER NOT NULL,
-        month TEXT NOT NULL,
-        year TEXT NOT NULL,
-        monthly_consumption REAL
-    )"""
-)
-connect_db.commit()
-connect_db.close()
-
 # Function to add a user to the database using the User instance and then to be used on post method:
 def add_user_to_db(new_user):
-    # connect_db = sqlite3.connect(database_name)
-    # Better way to connect to prevent errors while connecting: use the context manager:
-    with sqlite3.connect(database_name) as connect_db:
-        cursor_db = connect_db.cursor()
-        cursor_db.execute(
-            """
-            INSERT INTO users (first_name, last_name, rut, phone, email, address, sensor_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, 
-            (
-                new_user.first_name,
-                new_user.last_name,
-                new_user.rut,
-                new_user.phone,
-                new_user.email,
-                new_user.address, 
-                new_user.sensor_id
+    try:
+        with sqlite3.connect(database_name) as connect_db:
+            cursor_db = connect_db.cursor()
+            cursor_db.execute(
+                """
+                INSERT INTO users (first_name, last_name, rut, phone, email, address, sensor_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, 
+                (
+                    new_user.first_name,
+                    new_user.last_name,
+                    new_user.rut,
+                    new_user.phone,
+                    new_user.email,
+                    new_user.address, 
+                    new_user.sensor_id
+                )
             )
-        )
-        connect_db.commit()
-        # Now we don't need to close the connection, because we are using the context manager:
-        #connect_db.close()
-    return {"message": "User added successfully", "user": new_user.dict()}
-
+            connect_db.commit()
+        return {"message": "User added successfully", "user": new_user.dict()}
+    except sqlite3.IntegrityError as e:
+        return {"error": "Integrity exception because of unique constrint on sensor_id", "details": str(e)}
 
 # Insert values from devices into the database:
 def insert_lectures(lectures, sensor_id, time_stamp):
@@ -170,3 +120,17 @@ def bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor
         client_address = data_from_users[3]
         connect_db.commit()
     return [first_month_lecture, last_month_lecture, month_energy_consumption, monthly_cost, client_num, client_first_name, client_last_name, client_address]
+
+# Funtion to return the current devices on database:
+def get_current_devices():
+    with sqlite3.connect(database_name) as connect_db:
+        cursor_db = connect_db.cursor()
+        cursor_db.execute(
+            """
+            SELECT sensor_id
+            FROM users
+            """
+        )
+        device_ids = cursor_db.fetchone()
+        connect_db.commit()
+    return device_ids

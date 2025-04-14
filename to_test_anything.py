@@ -2,12 +2,12 @@ import time
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import pandas as pd
+import sqlite3
 
 import asyncio
 
-from background.database_helpers import bring_invoice_data
 
-from background.database_helpers import insert_lectures, energy_by_id_and_range
+from background.backendCem6.database_helpers import insert_lectures, energy_by_id_and_range, get_current_devices
 
 data_time = time.localtime()
 formated_data_time = time.strftime("%y-%m-%d %H:%M:%S", data_time)
@@ -103,13 +103,13 @@ month = time.strftime("%b")
 year = time.strftime("%Y")
 time_stamp = time.strftime("%H:%M:%S")
 
-print(date_time, date, month, year, time_stamp, full_datetime)
+#print(date_time, date, month, year, time_stamp, full_datetime)
 
 first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
 
-print(first_day_previous_month, last_day_previous_month)
-print(time.strftime("%d") == "24")
+#print(first_day_previous_month, last_day_previous_month)
+#print(time.strftime("%d") == "24")
 
 def time_variables():
     full_datetime = datetime.now()
@@ -126,7 +126,7 @@ def time_variables():
     return [full_datetime, date_time, date, month, year, time_stamp, day, hour, minute, first_day_previous_month, last_day_previous_month]
 
 times_var = time_variables()
-print("jejejeje", times_var[9], times_var[10])  
+# print("jejejeje", times_var[9], times_var[10])  
 
 
 def print_invoice(sensor_id: int):
@@ -145,4 +145,19 @@ def print_invoice(sensor_id: int):
     client_address = invoice_data[7]
     print(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, actual_time_variables[1], client_num, client_first_name, client_last_name, client_address)
 
-datass = print_invoice(4)
+# datass = print_invoice(4)
+
+def get_current_devices():
+    with sqlite3.connect("./background/backendCem6/energy_consumption.db") as connect_db:
+        cursor_db = connect_db.cursor()
+        cursor_db.execute(
+            """
+            SELECT sensor_id
+            FROM users
+            """
+        )
+        device_ids = cursor_db.fetchone()
+        connect_db.commit()
+    print(device_ids)
+
+get_current_devices()

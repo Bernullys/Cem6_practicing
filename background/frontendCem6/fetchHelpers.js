@@ -1,5 +1,17 @@
 const baseEndPoint = "http://127.0.0.1:8000";
 
+// Utility function to handle errors:
+function extractErrorMessage(errorData) {
+    if (Array.isArray(errorData.detail)) {
+        return errorData.detail.map(error => error.msg).join(" | ")
+    } else if (typeof errorData.detail === "string") {
+        return errorData.detail
+    } else {
+        return "Unknown error occurred"
+    }
+}
+
+// Function to fetch the device electric parameters:
 export async function fetchElecParam (device_id) {
     try {
         const response = await fetch(`${baseEndPoint}/read/${device_id}`, {
@@ -10,14 +22,15 @@ export async function fetchElecParam (device_id) {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.detail || "Failed to fetch electric parameters");
+            throw new Error(extractErrorMessage(errorData));
         }
         const result = await response.json();
         console.log("Fetched electric parameters: ", result);
         return result;
 
     } catch (error) {
-        console.error("Error fetching electric parameters: ", error);
+        console.error("Error fetching electric parameters:", error.message);
+        alert("Error fetching electric parameters: " + error.message)
         return []
     }
 }
