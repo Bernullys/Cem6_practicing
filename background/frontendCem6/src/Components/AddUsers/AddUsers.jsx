@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { fetchUsers } from "../../../fetchHelpers"
 
 // AddUsers takes from a form an object with the properties of Users
 function AddUsers () {
@@ -20,21 +21,10 @@ function AddUsers () {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch("http://127.0.0.1:8000/add_user/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify(formData)
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                alert("User added successfully");
+                const response = await fetchUsers(formData)
                 setFormData({ first_name: "", last_name: "", rut: "", phone: "", email: "", address: "", sensor_id: ""});
-            } else {
-                alert("Response error adding user: " + data.detail);
-            }
         } catch (error) {
-            alert("Catched error adding user: " + error);
+            console.log("Catched error adding user");
         }
     }
 

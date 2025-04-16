@@ -79,3 +79,6 @@ CREATE TABLE IF NOT EXISTS "historical_lectures" (
 
 -- DELETE FROM "historical_lectures"
 -- WHERE "month" = 'April';
+
+DELETE FROM "users"
+WHERE "id" > 1;

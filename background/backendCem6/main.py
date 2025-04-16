@@ -2,29 +2,38 @@ from typing import Annotated
 from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 import asyncio
 import logging, time
 from datetime import datetime, timedelta
+import re
+
 
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
 from invoice_pdf_maker import invoice, graph_maker
 
-# Instance of Pydantic BaseModel:
-class User(BaseModel):
-    first_name: str
-    last_name: str
-    rut: str
-    phone: str
-    email: str
-    address: str
-    sensor_id: int
+# Regular expressions for validation on some inputs:
+name_pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s'-]{3,50}$")
+rut_pattern = re.compile(r"^\d{7,8}-[\dkK]$")
+phone_pattern = re.compile(r"^\+?(56)?\d{9}$")
+address_pattern = re.compile(r"^[\w\s\.\-#º°/,]{5,100}$")
+datetime_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$")
+
+# Pydantic BaseModel for users:
+class UserCreate(BaseModel):
+    first_name: str = Field(..., max_length=50, min_length=3, description="First name of the user", example="Bernardo", pattern=name_pattern)
+    last_name: str = Field(..., max_length=50, min_length=3, description="Last name of the user", example="Dávila", pattern=name_pattern)
+    rut: str = Field(..., max_length=10, min_length=9, description="RUT of the user", example="12345678-9", pattern=rut_pattern)
+    phone: str = Field(..., max_length=12, min_length=9, description="Phone number of the user", example="+56995433938", pattern=phone_pattern)
+    email: EmailStr = Field(..., max_length=50, description="Email of the user", example="bernardoantoniod@gmail.com")
+    address: str = Field(..., max_length=100, min_length=5, description="Address of the user", example="Av. Libertador Bernardo O'Higgins 1234", pattern=address_pattern)
+    sensor_id: int = Field(..., ge=1, le=254, description="Sensor ID of the user", example=2)
 
 # User response model:
 class UserResponse(BaseModel):
     message: str
-    user: User
+    user: UserCreate
 
 # Device ID response model:
 class DeviceIdParamResponse(BaseModel):
@@ -107,6 +116,8 @@ database_name = "energy_consumption.db"
 running = True
 
 # Function to return time variables:
+# Return a list with this variables and order:
+# 0 - full_datetime, 1 - date_time, 2 -date, 3 - month, 4 - year, 5 - time_stamp, 6 - day, 7 - hour, 8 - minute, 9 - first_day_previous_month, 10 - last_day_previous_month
 def time_variables():
     full_datetime = datetime.now()
     date_time = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -120,6 +131,16 @@ def time_variables():
     first_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     last_day_previous_month = (full_datetime.replace(day=1) - timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=0)
     return [full_datetime, date_time, date, month, year, time_stamp, day, hour, minute, first_day_previous_month, last_day_previous_month]
+
+# Function to raise an exception if the device is not found in the database:
+def raising_by_not_device_on_db (device_id):
+    # Checking existin device ids in the database:
+    existing_device_ids = get_current_devices()
+    if device_id not in existing_device_ids:
+        raise HTTPException(
+            status_code=404,
+            detail = f"Device {device_id} not found in the database."
+        )
 
 async def poll_modbus():
     # Continuously read registers and store them in a database
@@ -168,20 +189,16 @@ async def stop_polling():
 
 # Add user endpiont:
 @app.post("/add_user/", response_model=UserResponse)
-async def add_user(new_user: User):
+async def add_user(new_user: UserCreate):
     return add_user_to_db(new_user)
 
 # Read actual time registers endpoint for a specific device:
 @app.get("/read/{device_id}", response_model=DeviceIdParamResponse)
 async def read_register(device_id: Annotated[int, Path(ge=1, le=254)]):
     response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
-    # Checking existin device ids in the database:
-    device_ids = get_current_devices()
-    if device_id not in device_ids:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Device {device_id} not found in the database."
-        )
+
+    raising_by_not_device_on_db(device_id)
+
     if response.isError():
         raise HTTPException(
             status_code=502,
@@ -207,13 +224,15 @@ async def read_register(device_id: Annotated[int, Path(ge=1, le=254)]):
 @app.get("/energy_consumption/{device_id}/")
 async def energy_consumption_by_range(
     device_id: Annotated[int, Path(ge=1, le=254)],
-    start_time: Annotated[str | None, Query()] = None,
-    end_time: Annotated[str | None, Query()] = None
+    start_time: Annotated[str | None, Query(pattern=datetime_pattern)] = None,
+    end_time: Annotated[str | None, Query(pattern=datetime_pattern)] = None
     ):
+    
+    raising_by_not_device_on_db(device_id)
+
     # Defining date and time variables:
-    actual_time_variables = time_variables()
-    first_day_previous_month = actual_time_variables[9]
-    last_day_previous_month = actual_time_variables[10]
+    first_day_previous_month = time_variables()[9]
+    last_day_previous_month = time_variables()[10]
     if (start_time == "") and (end_time == ""):
         return {
             "energy": energy_by_id_and_range(device_id, first_day_previous_month, last_day_previous_month),
@@ -227,12 +246,14 @@ async def energy_consumption_by_range(
         }
 
 # Create a PDF invoice for a specific user.
-@app.get("/invoice/{sensor_id}")
-async def print_invoice(sensor_id: int):
-    actual_time_variables = time_variables()
-    first_day_previous_month = actual_time_variables[9]
-    last_day_previous_month = actual_time_variables[10]
-    invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, sensor_id)
+@app.get("/invoice/{device_id}")
+async def print_invoice(device_id: Annotated[int, Path(ge=1, le=254)]):
+
+    raising_by_not_device_on_db(device_id)
+
+    first_day_previous_month = time_variables()[9]
+    last_day_previous_month = time_variables()[10]
+    invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, device_id)
     first_month_lecture = invoice_data[0]
     last_month_lecture = invoice_data[1]
     monthly_energy_consumption = invoice_data[2]
@@ -241,8 +262,8 @@ async def print_invoice(sensor_id: int):
     client_first_name = invoice_data[5]
     client_last_name = invoice_data[6]
     client_address = invoice_data[7]
-    graph_maker(sensor_id, database_name)
-    invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, actual_time_variables[1], client_num, client_first_name, client_last_name, client_address)
+    graph_maker(device_id, database_name)
+    invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, time_variables()[1], client_num, client_first_name, client_last_name, client_address)
     return {"message": "Invoice created"}
 
 
