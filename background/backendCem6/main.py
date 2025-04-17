@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
@@ -7,7 +7,6 @@ import asyncio
 import logging, time
 from datetime import datetime, timedelta
 import re
-
 
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
@@ -18,7 +17,7 @@ name_pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ\s'-]{3,50}$")
 rut_pattern = re.compile(r"^\d{7,8}-[\dkK]$")
 phone_pattern = re.compile(r"^\+?(56)?\d{9}$")
 address_pattern = re.compile(r"^[\w\s\.\-#º°/,]{5,100}$")
-datetime_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$")
+datetime_pattern = re.compile(r"^(|\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?)$")
 
 # Pydantic BaseModel for users:
 class UserCreate(BaseModel):

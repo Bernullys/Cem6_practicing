@@ -43,15 +43,15 @@ return (
                 </section>
                 <section>
                     <label htmlFor="">RUN/RUT</label>
-                    <input onChange={handleChange} value={formData.rut} required placeholder="RUT"  type="text" name="rut" id="" />
+                    <input onChange={handleChange} value={formData.rut} required placeholder="12345678-9"  type="text" name="rut" id="" />
                 </section>
                 <section>
                     <label htmlFor="">Telefono</label>
-                    <input onChange={handleChange} value={formData.phone} required placeholder="Telefono"  type="text" name="phone" id="" />
+                    <input onChange={handleChange} value={formData.phone} required placeholder="+56911111111"  type="text" name="phone" id="" />
                 </section>
                 <section>
                     <label htmlFor="">Correo</label>
-                    <input onChange={handleChange} value={formData.email} required placeholder="Correo"  type="text" name="email" id="" />
+                    <input onChange={handleChange} value={formData.email} required placeholder="ejemplo@dominio.com"  type="text" name="email" id="" />
                 </section>
                 <section>
                     <label htmlFor="">Dirección</label>
@@ -59,7 +59,7 @@ return (
                 </section>
                 <section>
                     <label htmlFor="">ID del medidor</label>
-                    <input onChange={handleChange} value={formData.sensor_id} required placeholder="ID del medidor"  type="numeric" name="sensor_id" id="" />
+                    <input onChange={handleChange} value={formData.sensor_id} required placeholder="id del medidor"  type="numeric" name="sensor_id" id="" />
                 </section>
                 <section>
                     <button type="submit">Agregar</button>

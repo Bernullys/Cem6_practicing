@@ -72,7 +72,7 @@ export async function fetchEnergy (device_id, start_time, end_time) {
         return result;
     } catch (error) {
         console.log("Error fetching energy: ", error.message);
-        alert("Error fetching energy: " + error.message)
+        alert("Error fetching energy--: " + error.message)
         return []
     }
 }
