@@ -17,6 +17,15 @@
 
 button {
   cursor: pointer;
+  width: 80px;
+  height: 30px;
+  margin: 12px;
+}
+
+/* StartStopSystem */
+
+.startStopSystem_main_container {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* AddUsers styles */
@@ -25,6 +34,8 @@ button {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.signin_form,
+.login_form,
 .checkEnergy_main_container form,
 .addUsers_form {
   display: flex;
@@ -32,8 +43,10 @@ button {
   align-items: center;
 }
 
+.signin_form section,
 .checkEnergy_main_container form section,
-.addUsers_form section {
+.addUsers_form section,
+.login_form section {
   width: 28%;
   display: flex;
   justify-content:space-between;

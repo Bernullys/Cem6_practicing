@@ -36,6 +36,16 @@ CREATE TABLE IF NOT EXISTS "historical_lectures" (
     FOREIGN KEY("sensor_id") REFERENCES lectures("sensor_id")
 );
 
+-- Create app users table:
+CREATE TABLE IF NOT EXISTS "app_users" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "full_name" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "role" TEXT NOT NULL
+);
+
 -- SELECT "lecture_time" FROM "lectures";
 
 -- DELETE FROM "lectures"

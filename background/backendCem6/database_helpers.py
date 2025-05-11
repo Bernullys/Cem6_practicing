@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 import sqlite3
 
 # Database name:
@@ -134,3 +135,65 @@ def get_current_devices():
         device_ids = cursor_db.fetchone()
         connect_db.commit()
     return device_ids
+
+# Function to add app user to the database using the AppUser instance and then to be used on post method:
+def add_app_user_to_db(app_user):
+    try:
+        with sqlite3.connect(database_name) as connect_db:
+            cursor_db = connect_db.cursor()
+            cursor_db.execute(
+                """
+                INSERT INTO app_users (full_name, username, password, email, role)
+                VALUES (?, ?, ?, ?, ?)
+                """, 
+                (
+                    app_user.full_name,
+                    app_user.username,
+                    app_user.password,
+                    app_user.email,
+                    app_user.role
+                )
+            )
+            connect_db.commit()
+        return {"message": "App user added successfully"}
+    except sqlite3.IntegrityError as e:
+        raise HTTPException(status_code=400, detail=f"Database error: {str(e)}")
+
+# Function to get all app users names from the database and then compare them with the one I'm trying to sign in:
+def get_all_app_users(app_user_name):
+    with sqlite3.connect(database_name) as connect_db:
+        cursor_db = connect_db.cursor()
+        cursor_db.execute (
+            """
+                SELECT username
+                FROM app_users
+            """
+        )
+        current_app_users = [row[0] for row in cursor_db.fetchall()]
+        connect_db.commit()
+    if app_user_name in current_app_users:
+        return True
+    else:
+        return False
+        
+# Function to bring the user data:
+def get_user(username):
+    with sqlite3.connect(database_name) as connect_db:
+        cursor_db = connect_db.cursor()
+        cursor_db.execute(
+            """
+            SELECT * FROM app_users WHERE username = ?
+            """,
+            (username,)
+        )
+        user_data = cursor_db.fetchone()
+        connect_db.commit()
+        
+    return {
+        "id": user_data[0],
+        "full_name": user_data[1],
+        "username": user_data[2],
+        "password": user_data[3],
+        "email": user_data[4],
+        "role": user_data[5]
+    }

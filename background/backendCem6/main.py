@@ -7,6 +7,7 @@ import asyncio
 import logging, time
 from datetime import datetime, timedelta
 import re
+from auth import router as auth_router
 
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
@@ -50,6 +51,9 @@ class DeviceIdParamResponse(BaseModel):
 # Creating a FastAPI instance:
 app = FastAPI()
 
+# Include the auth router for authentication endpoints:
+app.include_router(auth_router)
+
 # Communicate with my frontend / Enable CORS:
 app.add_middleware(
     CORSMiddleware,
@@ -70,7 +74,7 @@ gateway_port = 502
 cem6_ids = [2, 4]
 start_address = 0
 last_address = 97
-polling_interval = 900
+polling_interval = 60
 client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
 
 # Memory map modbus address in decimal
@@ -174,13 +178,13 @@ async def poll_modbus():
         await asyncio.sleep(polling_interval)
 
 # Start the background task so the application starts:
-@app.get("/start")
+@app.get("/start/")
 async def start_polling(background_tasks: BackgroundTasks):
     background_tasks.add_task(poll_modbus)
     return {"message": "Modbus polling started"}
 
 # Stop the background task so the application stops:
-@app.get("/stop")
+@app.get("/stop/")
 async def stop_polling():
     global running
     running = False
@@ -192,7 +196,7 @@ async def add_user(new_user: UserCreate):
     return add_user_to_db(new_user)
 
 # Read actual time registers endpoint for a specific device:
-@app.get("/read/{device_id}", response_model=DeviceIdParamResponse)
+@app.get("/read/{device_id}/", response_model=DeviceIdParamResponse)
 async def read_register(device_id: Annotated[int, Path(ge=1, le=254)]):
     response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
 
@@ -245,7 +249,7 @@ async def energy_consumption_by_range(
         }
 
 # Create a PDF invoice for a specific user.
-@app.get("/invoice/{device_id}")
+@app.get("/invoice/{device_id}/")
 async def print_invoice(device_id: Annotated[int, Path(ge=1, le=254)]):
 
     raising_by_not_device_on_db(device_id)

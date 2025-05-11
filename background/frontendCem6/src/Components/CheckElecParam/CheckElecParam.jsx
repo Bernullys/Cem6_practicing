@@ -36,7 +36,7 @@ function CheckElecParam () {
                         datetime={data.datetime}
                         voltage={data.voltage}
                         current={data.current}
-                        frecuency={data.frecuency}
+                        frecuency={data.frequency}
                         active_power={data.active_power}
                         reactive_power={data.reactive_power}
                         apparent_power={data.aparent_power}

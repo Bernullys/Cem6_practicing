@@ -11,31 +11,46 @@ function extractErrorMessage(errorData) {
     }
 }
 
-// Funtion to add users:
-export async function fetchUsers (formData) {
+// Function to start the system:
+export async function startSystem (onOff) {
     try {
-        const response = await fetch(`${baseEndPoint}/add_user/`, {
+        const response = await fetch(`${baseEndPoint}/${onOff}/`)
+        if (response.ok) {
+            alert("El sistema se encendió/apagó correctamente")
+        } else {
+            const errorData = await response.json()
+            throw new Error(extractErrorMessage(errorData))
+        }
+    } catch (error) {
+        console.log("Error al encender/apagar el systema: ", error.message)
+        alert("Error al encender/apagar el systema: " + error.message)
+    }
+}
+
+// Funtion to add users and app users:
+export async function fetchUsers (formData, endPoint) {
+    try {
+        const response = await fetch(`${baseEndPoint}/${endPoint}/`, {
             method: "POST",
             headers: { "Content-Type": "application/json"},
             body: JSON.stringify(formData)
         })
-        if (!response.ok) {
-            const errorData = await response.json()
-            throw new Error(extractErrorMessage(errorData))
-        }
         const data = await response.json()
+        if (!response.ok) {
+            throw new Error(extractErrorMessage(data))
+        }
         console.log("User added successfully: ", data)
-        alert("User added successfully")
+        alert(`${endPoint} added successfully`)
     } catch (error) {
-        console.error("Error adding user: ", error.message)
-        alert("Error adding user: " + error.message)
+        console.error(`Error adding ${endPoint}: `, error.message)
+        alert(`Error adding ${endPoint}: ` + error.message)
     }
 }
 
 // Function to fetch the device electric parameters:
 export async function fetchElecParam (device_id) {
     try {
-        const response = await fetch(`${baseEndPoint}/read/${device_id}`, {
+        const response = await fetch(`${baseEndPoint}/read/${device_id}/`, {
             method: "GET",
             mode: "cors",
             headers: { "Content-Type": "application/json"},
@@ -58,7 +73,7 @@ export async function fetchElecParam (device_id) {
 // Function to fetch energy by device Id and optional time range:
 export async function fetchEnergy (device_id, start_time, end_time) {
     try {
-        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}/?start_time=${start_time}&end_time=${end_time}`, {
+        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}/?start_time=${start_time}&end_time=${end_time}/`, {
             method: "GET",
             mode: "cors",
             headers: {"Content-Type": "application/json"}
@@ -80,7 +95,7 @@ export async function fetchEnergy (device_id, start_time, end_time) {
 // Function to print invoice by device Id:
 export async function fetchInvoice (device_id) {
     try {
-        const response = await fetch(`${baseEndPoint}/invoice/${device_id}`, {
+        const response = await fetch(`${baseEndPoint}/invoice/${device_id}/`, {
             method: "GET",
             mode: "cors",
             headers: {"Content-Type": "application/json"}

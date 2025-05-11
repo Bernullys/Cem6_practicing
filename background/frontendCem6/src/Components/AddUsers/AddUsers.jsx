@@ -21,7 +21,7 @@ function AddUsers () {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-                const response = await fetchUsers(formData)
+                const response = await fetchUsers(formData, "add_user")
                 setFormData({ first_name: "", last_name: "", rut: "", phone: "", email: "", address: "", sensor_id: ""});
         } catch (error) {
             console.log("Catched error adding user");
