@@ -35,7 +35,7 @@ def authenticate_user(username: str, password: str):
     if get_all_app_users(username) == False:
         return False
     user = get_user(username)
-    if not verify_password(password, user[3]):
+    if not verify_password(password, user["password"]):
         return False
     return user # user is a dictionary with user data
 
@@ -113,7 +113,7 @@ def register_user(app_user: AppUserCreate):
     return add_app_user_to_db(app_user)
 
 # Path function to create a new access token:
-@router.post("/token", response_model=Token)
+@router.post("/token/", response_model=Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -126,6 +126,6 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")

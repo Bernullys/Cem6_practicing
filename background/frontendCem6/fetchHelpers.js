@@ -47,6 +47,29 @@ export async function fetchUsers (formData, endPoint) {
     }
 }
 
+// Funtion login users:
+export async function logUsers (formData) {
+    try {
+        const urlEncoded = new URLSearchParams()
+        urlEncoded.append("username", formData.username)
+        urlEncoded.append("password", formData.password)
+
+        const response = await fetch(`${baseEndPoint}/token/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded"},
+            body: urlEncoded.toString()
+        })
+        const data = await response.json()
+        if (!response.ok) {
+            throw new Error(extractErrorMessage(data))
+        }
+        console.log("User loged successfully: ", data)
+    } catch (error) {
+        console.error(`Error loging`, error.message)
+        alert(`Error loging: ` + error.message)
+    }
+}
+
 // Function to fetch the device electric parameters:
 export async function fetchElecParam (device_id) {
     try {
