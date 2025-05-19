@@ -1,5 +1,5 @@
 from typing import Annotated, Optional
-from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException
+from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
 from pydantic import BaseModel, Field, EmailStr
@@ -8,6 +8,7 @@ import logging, time
 from datetime import datetime, timedelta
 import re
 from auth import router as auth_router
+from auth import get_current_user
 
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
@@ -179,7 +180,10 @@ async def poll_modbus():
 
 # Start the background task so the application starts:
 @app.get("/start/")
-async def start_polling(background_tasks: BackgroundTasks):
+async def start_polling(
+    background_tasks: BackgroundTasks,
+    current_user: Annotated[dict, Depends(get_current_user)]
+    ):
     background_tasks.add_task(poll_modbus)
     return {"message": "Modbus polling started"}
 

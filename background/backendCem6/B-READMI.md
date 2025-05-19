@@ -197,3 +197,51 @@ Summary
 ➕ Just add current_user: Annotated[...] or current_user=Depends(...) as an extra argument.
 
 📦 FastAPI will handle it for you behind the scenes — and reject requests with missing/invalid tokens.
+
+
+----------------------------------------------------------------------------------------------------------
+✅ What get_current_user function does
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+oauth2_scheme is a special FastAPI dependency that automatically looks for the token in the Authorization: Bearer <token> header.
+
+FastAPI passes that token as the token argument to your function.
+
+✅ Step-by-Step Breakdown
+
+credentials_exception = HTTPException(...)
+This exception is prepared to be raised whenever token validation fails.
+
+payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+username = payload.get("sub")
+This tries to decode the JWT token.
+
+It looks for the "sub" (subject) field, which is where you stored the username when the token was created.
+
+If the field isn’t there → raise a 401.
+
+token_data = TokenData(username=username)
+Wraps the username into a TokenData model (this step is optional but adds structure).
+
+user = get_user(username=token_data.username)
+This fetches the user from your database.
+
+if user is None:
+    raise credentials_exception
+If the user doesn’t exist anymore (e.g., deleted), block the request.
+
+return user
+✅ If everything is fine, it returns the user.
+
+This user will now be passed to the endpoint like this:
+
+@app.get("/protected/")
+async def protected_route(current_user: Annotated[dict, Depends(get_current_user)]):
+    return {"user": current_user}
+
+✅ Final Notes
+You are protecting the route just by adding Depends(get_current_user) to its parameters.
+If someone doesn’t send a valid token → they get a 401 Unauthorized.
+This is the standard way to handle secure access to routes using OAuth2 with JWT in FastAPI.
+
+-----------------------------------------------------------------------------------------------------------------------------------------

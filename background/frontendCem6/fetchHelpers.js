@@ -13,8 +13,21 @@ function extractErrorMessage(errorData) {
 
 // Function to start the system:
 export async function startSystem (onOff) {
+    const token = localStorage.getItem("access_token")
+    console.log("Token: ", token)
+    if (!token) {
+        alert("Por favor inicia sesión.")
+        return
+    }
+
     try {
-        const response = await fetch(`${baseEndPoint}/${onOff}/`)
+        const response = await fetch(`${baseEndPoint}/${onOff}/`, {
+            method: "GET",
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"}
+        })
+
         if (response.ok) {
             alert("El sistema se encendió/apagó correctamente")
         } else {
@@ -63,7 +76,10 @@ export async function logUsers (formData) {
         if (!response.ok) {
             throw new Error(extractErrorMessage(data))
         }
-        console.log("User loged successfully: ", data)
+        const token = data.access_token
+        console.log("User loged successfully: ", data, token)
+        // Store the token in local storage
+        localStorage.setItem("access_token", token)
     } catch (error) {
         console.error(`Error loging`, error.message)
         alert(`Error loging: ` + error.message)
