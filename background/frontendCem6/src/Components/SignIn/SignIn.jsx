@@ -1,7 +1,10 @@
 import { useState } from "react"
 import { logUsers } from "../../../fetchHelpers"
+import { useNavigate } from "react-router-dom"
 
 function SignIn () {
+
+    const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
         username: "",
@@ -24,6 +27,7 @@ function SignIn () {
                 username: "",
                 password: ""
             })
+            navigate("/allApp")
         } catch (error) {
             console.log("Catched error loging user")
         }
