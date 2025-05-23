@@ -19,7 +19,6 @@ export async function startSystem (onOff) {
         alert("Por favor inicia sesión.")
         return
     }
-
     try {
         const response = await fetch(`${baseEndPoint}/${onOff}/`, {
             method: "GET",
@@ -27,16 +26,17 @@ export async function startSystem (onOff) {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"}
         })
-
         if (response.ok) {
-            alert("El sistema se encendió/apagó correctamente")
+            alert(`El sistema ${onOff}  correctamente`)
+            return {ok: true}
         } else {
             const errorData = await response.json()
             throw new Error(extractErrorMessage(errorData))
         }
     } catch (error) {
-        console.log("Error al encender/apagar el systema: ", error.message)
-        alert("Error al encender/apagar el systema: " + error.message)
+        console.log(`Error al ${onOff} el systema: `, error.message)
+        alert(`Error al ${onOff} el systema: ` + error.message)
+        return {ok: false, error: error.message }
     }
 }
 

@@ -9,6 +9,7 @@ import CheckElecParam from './Components/CheckElecParam/CheckElecParam';
 import CheckEnergy from './Components/CheckEnergy/CheckEnergy';
 import Invoice from './Components/Invoice/Invoice';
 import LogoutButton from './Components/LogoutButton/LogoutButton';
+import AuthWatcher from './Components/AuthWatcher/AuthWatcher';
 import './App.css'
 
 export const AppRoutes = () => {
@@ -18,11 +19,16 @@ export const AppRoutes = () => {
     { path: "/allApp", element: 
     <ProtectedRoute>
       <StartStopSystem />
+      <AddUsers />
+      <CheckElecParam />
+      <CheckEnergy />
+      <Invoice />
       <LogoutButton />
     </ProtectedRoute>}
   ])
   return (
     <>
+      <AuthWatcher />
       { routes }
     </>
   )

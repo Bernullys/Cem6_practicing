@@ -65,9 +65,9 @@ app.add_middleware(
 )
 
 # Logging configuration: (Debugging)
-# logging.basicConfig()
-# log = logging.getLogger()
-# log.setLevel(logging.DEBUG)
+logging.basicConfig()
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 
 # Modbus gateway configuration:
 gateway_ip = "192.168.0.100"
@@ -184,8 +184,13 @@ async def start_polling(
     background_tasks: BackgroundTasks,
     current_user: Annotated[dict, Depends(get_current_user)]
     ):
-    background_tasks.add_task(poll_modbus)
-    return {"message": "Modbus polling started"}
+        if background_tasks.add_task(poll_modbus):
+            return {"message": "Modbus polling started"}
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to start Modbus polling"
+            )
 
 # Stop the background task so the application stops:
 @app.get("/stop/")
