@@ -81,32 +81,6 @@ router = APIRouter()
 # Flow 2 - Return token. OAuth2 scheme for token authentication:
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "token")
 
-
-# Flow 3 - Authenticate routes by user - function to return the current user from the token:
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    print("token", token)
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print("payload", payload)
-        username = payload.get("sub")
-        print("username from token", username)
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except InvalidTokenError as e:
-        print("Token decode failed: ", e)
-        raise credentials_exception
-    user = get_user(username=token_data.username)
-    print("user from db: ", user)
-    if user is None:
-        raise credentials_exception
-    return user
-
 # Flow 1 - Add app_users to db. Register endpoint to create a new app user:
 @router.post("/register/", response_model = Message)
 def register_user(app_user: AppUserCreate):
@@ -134,3 +108,28 @@ async def login_for_access_token(
         data={"sub": user["username"]}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
+
+# Flow 3 - Authenticate routes by user - function to return the current user from the token:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    print("token", token)
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("payload", payload)
+        username = payload.get("sub")
+        print("username from token", username)
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username)
+    except InvalidTokenError as e:
+        print("Token decode failed: ", e)
+        raise credentials_exception
+    user = get_user(username=token_data.username)
+    print("user from db: ", user)
+    if user is None:
+        raise credentials_exception
+    return user

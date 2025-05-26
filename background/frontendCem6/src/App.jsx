@@ -1,6 +1,6 @@
 import { useRoutes, HashRouter, useLocation } from 'react-router-dom';
 import ProtectedRoute from './Components/ProtectedRoute.jsx/ProtectedRoute';
-import NavBar from './Components/NavBar/NavBar';
+import Home from './Components/Home/Home';
 import SignIn from './Components/SignIn/SignIn';
 import Register from './Components/Register/Register';;
 import StartStopSystem from './Components/StartStopSystem/StartStopSystem';
@@ -14,7 +14,8 @@ import './App.css'
 
 export const AppRoutes = () => {
   let routes = useRoutes([
-    { path: "/", element: <SignIn />},
+    { path: "/", element: <Home />},
+    { path: "/login", element: <SignIn/>},
     { path: "/register", element: <Register />},
     { path: "/allApp", element: 
     <ProtectedRoute>
@@ -38,7 +39,6 @@ function App() {
 
   return (
     <HashRouter>
-      <NavBar />
       <AppRoutes />
     </HashRouter>
   )

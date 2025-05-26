@@ -7,7 +7,7 @@ function NavBar () {
             <nav>
                 <ul>
                     <li>
-                        <NavLink to="/">Inicio</NavLink>
+                        <NavLink to="/login">Entrar</NavLink>
                     </li>
                     <li>
                         <NavLink to="/register">Registrarse</NavLink>
