@@ -6,7 +6,7 @@ function StartStopSystem () {
 
     const [systemState, setSystemState] = useState("Apagado");
 
-    const handleStartSystem = async (action) => {
+    const handleStartStopSystem = async (action) => {
         const response = await startSystem(action)
         console.log("handle StartSystem response", response)
         if (response.ok) {
@@ -20,8 +20,8 @@ function StartStopSystem () {
         <section className="startStopSystem_main_container">
             <h1>Sistema de Gestión de Energía</h1>
             <section>
-                <button onClick= {() => handleStartSystem("start")}>Encender</button>
-                <button onClick={() => handleStartSystem("stop")}>Apagar</button>
+                <button onClick= {() => handleStartStopSystem("start")}>Encender</button>
+                <button onClick={() => handleStartStopSystem("stop")}>Apagar</button>
             </section>
             <section>
                 <h2>Estado del sistema</h2>

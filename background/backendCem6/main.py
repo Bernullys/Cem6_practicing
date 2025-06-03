@@ -75,8 +75,11 @@ gateway_port = 502
 cem6_ids = [2, 4]
 start_address = 0
 last_address = 97
-polling_interval = 60
+polling_interval = 30
 client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
+
+# Flag to run poll_modbus function
+running = False
 
 # Memory map modbus address in decimal
 map_cem6 = {
@@ -116,9 +119,6 @@ electric_parameters = [map_cem6["voltage"], map_cem6["current"], map_cem6["frecu
 # Datababase name:
 database_name = "energy_consumption.db"
 
-# Flag to control the polling loop
-running = True
-
 # Function to return time variables:
 # Return a list with this variables and order:
 # 0 - full_datetime, 1 - date_time, 2 -date, 3 - month, 4 - year, 5 - time_stamp, 6 - day, 7 - hour, 8 - minute, 9 - first_day_previous_month, 10 - last_day_previous_month
@@ -152,14 +152,18 @@ async def poll_modbus():
     while running:
         try:
             if not client.connect():
-                logging.error("Failed to connect to Modbus Gateway")
+                logging.warning("Gateway DISCONNECTED")
+                client.close()
                 await asyncio.sleep(polling_interval)
                 continue
+            logging.info("Gateway CONNECTED")
+
             # Read holding registers
             for device_id in cem6_ids:
                 response = client.read_holding_registers(address=start_address, count=last_address, slave=device_id)
                 if response.isError():
                     logging.error(f"Modbus error for device: {device_id}. Error description: {response}")
+                    client.close()
                 else:
                     # Defining date and time variables:
                     actual_time_variables = time_variables()
@@ -174,23 +178,24 @@ async def poll_modbus():
                     if actual_time_variables[6] == "01" and actual_time_variables[7] == "00" and int(actual_time_variables[8]) <= 15:
                         energy_to_historical_table = energy_by_id_and_range(device_id, actual_time_variables[9], actual_time_variables[10])
                         add_monthly_consumption_to_db(device_id, actual_time_variables[3], actual_time_variables[4], energy_to_historical_table)
+                    client.close()
+                    
         except Exception as e:
-            logging.error(f"Exception in Modbus polling: {e}")
+            logging.error(f"Exception in Modbus Polling: {e}")
         await asyncio.sleep(polling_interval)
+    client.close()
 
-# Start the background task so the application starts:
+# Start the background task so the application starts:,
+#    current_user: Annotated[dict, Depends(get_current_user)]
 @app.get("/start/")
-async def start_polling(
-    background_tasks: BackgroundTasks,
-    current_user: Annotated[dict, Depends(get_current_user)]
-    ):
-        if background_tasks.add_task(poll_modbus):
-            return {"message": "Modbus polling started"}
-        else:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to start Modbus polling"
-            )
+async def start_polling(background_tasks: BackgroundTasks):
+    global running
+    if not running:
+        running = True
+        background_tasks.add_task(poll_modbus)
+        return {"message": "Modbus polling started"}
+    else:
+        return {"message": "Modbus polling is not running"}
 
 # Stop the background task so the application stops:
 @app.get("/stop/")
