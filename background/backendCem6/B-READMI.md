@@ -244,4 +244,41 @@ You are protecting the route just by adding Depends(get_current_user) to its par
 If someone doesn’t send a valid token → they get a 401 Unauthorized.
 This is the standard way to handle secure access to routes using OAuth2 with JWT in FastAPI.
 
------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Device Status Monitoring system:
+
+✅ 1. Purpose
+Monitor a list of IP addresses (gateways) to check if each one is connected or disconnected, and:
+Expose the status via a REST endpoint (/device_status/)
+Broadcast live status updates over a WebSocket (/ws/status/)
+
+✅ 4. Async Ping Function (cross-platform & non-root) async def system_ping(ip: str) -> bool
+Uses the system's ping command.
+Avoids root permission issues.
+Works on Windows, macOS, Linux.
+
+✅ 5. Background Monitoring Task async def gateways_monitor()
+Pings each IP every 10 seconds.
+Updates gateways_status in memory.
+
+✅ 6. Startup Hook @app.on_event("startup")
+Automatically starts monitoring in the background when the app launches.
+
+✅ 7. REST Endpoint @app.get("/device_status/")
+Returns the current status of all gateways as a JSON object.
+Useful for dashboards or simple HTTP-based clients.
+
+✅ 8. WebSocket Endpoint @app.websocket("/ws/status/")
+Sends real-time updates every 5 seconds.
+Can be consumed by your frontend (e.g., React) using WebSocket.
+Note:
+    WebSocket endpoints are not regular HTTP GET routes.
+    They require a WebSocket client (e.g. in JavaScript: new WebSocket("ws://...")).
+    If you try to access them through the browser's address bar or a REST client (like Postman using GET), FastAPI doesn't find a matching HTTP route and returns 404.
+
+✅ Summary
+You now have:
+Non-root compatible pinging using system ping.
+Status available via both REST and WebSocket.
+Clean and extensible code structure.

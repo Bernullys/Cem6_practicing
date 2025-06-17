@@ -1,5 +1,5 @@
-from typing import Annotated, Optional
-from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException, Depends
+from typing import Annotated, Optional, Dict
+from fastapi import FastAPI, BackgroundTasks, Query, Path, HTTPException, Depends, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from pymodbus.client import ModbusTcpClient
 from pydantic import BaseModel, Field, EmailStr
@@ -7,6 +7,8 @@ import asyncio
 import logging, time
 from datetime import datetime, timedelta
 import re
+from ping3 import ping, EXCEPTIONS
+import platform
 from auth import router as auth_router
 from auth import get_current_user
 
@@ -78,6 +80,60 @@ last_address = 97
 polling_interval = 30
 client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
 
+# ------------- Status checking ------------------------------------- #
+# Gateway's list:
+gateways_list = {
+    1: "192.168.0.100",
+    2: "192.168.0.101"
+}
+# Gateway's status:
+gateways_status: Dict[int, str] = {}
+
+async def system_ping(ip: str) -> bool:
+    param = "-n" if platform.system().lower() == "windows" else "-c"
+    proc = await asyncio.create_subprocess_exec(
+        "ping", param, "1", ip,
+        stdout=asyncio.subprocess.DEVNULL,
+        stderr=asyncio.subprocess.DEVNULL
+    )
+    return (await proc.wait()) == 0
+
+
+async def gateways_monitor():
+    while True:
+        for gateway_id, ip in gateways_list.items():
+            try:    
+                is_up = await system_ping(ip)
+                
+                gateways_status[gateway_id] = "connected" if is_up else "disconnected"
+            except Exception as e:
+                gateways_status[gateway_id] = "disconnected"
+                print(f"Error pinging {ip}: {e}")
+        await asyncio.sleep(10)
+
+
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(gateways_monitor())
+
+@app.get("/device_status/")
+async def get_status():
+    return gateways_status
+
+@app.websocket("/ws/status/")
+async def websocket_status(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            await websocket.send_json(gateways_status)
+            await asyncio.sleep(5)
+    except Exception as e:
+        print(f"WebSocket disconnected: {e}")
+
+# ------------- Status checking ------------------------------------- #
+
+
 # Flag to run poll_modbus function
 running = False
 
@@ -146,6 +202,7 @@ def raising_by_not_device_on_db (device_id):
             detail = f"Device {device_id} not found in the database."
         )
 
+
 async def poll_modbus():
     # Continuously read registers and store them in a database
     global running
@@ -184,6 +241,8 @@ async def poll_modbus():
             logging.error(f"Exception in Modbus Polling: {e}")
         await asyncio.sleep(polling_interval)
     client.close()
+
+# Start a background task to run gateways monitor
 
 # Start the background task so the application starts:,
 #    current_user: Annotated[dict, Depends(get_current_user)]
@@ -282,6 +341,10 @@ async def print_invoice(device_id: Annotated[int, Path(ge=1, le=254)]):
     graph_maker(device_id, database_name)
     invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, time_variables()[1], client_num, client_first_name, client_last_name, client_address)
     return {"message": "Invoice created"}
+
+
+
+
 
 
 # For the future: I need to create a function that will be called by the background task to create the invoice and send it to the user by email.

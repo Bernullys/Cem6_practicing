@@ -10,6 +10,7 @@ import CheckEnergy from './Components/CheckEnergy/CheckEnergy';
 import Invoice from './Components/Invoice/Invoice';
 import LogoutButton from './Components/LogoutButton/LogoutButton';
 import AuthWatcher from './Components/AuthWatcher/AuthWatcher';
+import GWStatus from './Components/GWStatus/GWStatus';
 import './App.css'
 
 export const AppRoutes = () => {
@@ -24,6 +25,7 @@ export const AppRoutes = () => {
       <CheckElecParam />
       <CheckEnergy />
       <Invoice />
+      <GWStatus />
       <LogoutButton />
     </ProtectedRoute>}
   ])
