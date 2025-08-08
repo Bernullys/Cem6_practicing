@@ -276,6 +276,9 @@ Note:
     WebSocket endpoints are not regular HTTP GET routes.
     They require a WebSocket client (e.g. in JavaScript: new WebSocket("ws://...")).
     If you try to access them through the browser's address bar or a REST client (like Postman using GET), FastAPI doesn't find a matching HTTP route and returns 404.
+    Make sure your WebSocket URL uses the correct protocol:
+        Use "ws://" for development.
+        Use "wss://" for production with HTTPS.
 
 ✅ Summary
 You now have:

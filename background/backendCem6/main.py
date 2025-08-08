@@ -74,7 +74,7 @@ log.setLevel(logging.DEBUG)
 # Modbus gateway configuration:
 gateway_ip = "192.168.0.100"
 gateway_port = 502
-cem6_ids = [2, 4]
+cem6_ids = [2, 4, 5]
 start_address = 0
 last_address = 97
 polling_interval = 30
@@ -110,8 +110,6 @@ async def gateways_monitor():
                 gateways_status[gateway_id] = "disconnected"
                 print(f"Error pinging {ip}: {e}")
         await asyncio.sleep(10)
-
-
 
 @app.on_event("startup")
 async def startup_event():
@@ -247,7 +245,7 @@ async def poll_modbus():
 # Start the background task so the application starts:,
 #    current_user: Annotated[dict, Depends(get_current_user)]
 @app.get("/start/")
-async def start_polling(background_tasks: BackgroundTasks):
+async def start_polling(background_tasks: BackgroundTasks, current_user: Annotated[dict, Depends(get_current_user)]):
     global running
     if not running:
         running = True
