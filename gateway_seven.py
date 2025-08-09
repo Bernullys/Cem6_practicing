@@ -1,9 +1,9 @@
 from pymodbus.client import ModbusTcpClient
 
 
-gateway_ip = "192.168.0.100"
+gateway_ip = "192.168.100.10"
 gateway_port = 502
-cem6_ids = [2, 4]
+cem6_ids = [1]
 
 start_address = 0
 last_address = 3

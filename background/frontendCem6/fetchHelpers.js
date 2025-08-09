@@ -112,7 +112,7 @@ export async function fetchElecParam (device_id) {
 // Function to fetch energy by device Id and optional time range:
 export async function fetchEnergy (device_id, start_time, end_time) {
     try {
-        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}/?start_time=${start_time}&end_time=${end_time}/`, {
+        const response = await fetch(`${baseEndPoint}/energy_consumption/${device_id}/?start_time=${start_time}&end_time=${end_time}`, {
             method: "GET",
             mode: "cors",
             headers: {"Content-Type": "application/json"}

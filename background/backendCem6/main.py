@@ -72,7 +72,7 @@ log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
 # Modbus gateway configuration:
-gateway_ip = "192.168.0.100"
+gateway_ip = "192.168.100.100"
 gateway_port = 502
 cem6_ids = [2, 4, 5]
 start_address = 0
@@ -83,8 +83,8 @@ client = ModbusTcpClient(host=gateway_ip, port=gateway_port, timeout=2)
 # ------------- Status checking ------------------------------------- #
 # Gateway's list:
 gateways_list = {
-    1: "192.168.0.100",
-    2: "192.168.0.101"
+    1: "192.168.100.100",
+    2: "192.168.100.15"
 }
 # Gateway's status:
 gateways_status: Dict[int, str] = {}
@@ -327,19 +327,21 @@ async def print_invoice(device_id: Annotated[int, Path(ge=1, le=254)]):
 
     first_day_previous_month = time_variables()[9]
     last_day_previous_month = time_variables()[10]
-    invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, device_id)
-    first_month_lecture = invoice_data[0]
-    last_month_lecture = invoice_data[1]
-    monthly_energy_consumption = invoice_data[2]
-    monthly_cost = invoice_data[3]
-    client_num = invoice_data[4]
-    client_first_name = invoice_data[5]
-    client_last_name = invoice_data[6]
-    client_address = invoice_data[7]
-    graph_maker(device_id, database_name)
-    invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, time_variables()[1], client_num, client_first_name, client_last_name, client_address)
-    return {"message": "Invoice created"}
-
+    try:
+        invoice_data = bring_invoice_data(first_day_previous_month, last_day_previous_month, device_id)
+        first_month_lecture = invoice_data[0]
+        last_month_lecture = invoice_data[1]
+        monthly_energy_consumption = invoice_data[2]
+        monthly_cost = invoice_data[3]
+        client_num = invoice_data[4]
+        client_first_name = invoice_data[5]
+        client_last_name = invoice_data[6]
+        client_address = invoice_data[7]
+        graph_maker(device_id, database_name)
+        invoice(first_month_lecture, last_month_lecture, monthly_energy_consumption, monthly_cost, first_day_previous_month, last_day_previous_month, time_variables()[1], client_num, client_first_name, client_last_name, client_address)
+        return {"message": "Invoice created"}
+    except:
+        return {"message": "Not data from last month"}
 
 
 

@@ -285,3 +285,47 @@ You now have:
 Non-root compatible pinging using system ping.
 Status available via both REST and WebSocket.
 Clean and extensible code structure.
+
+If don't work websocket:
+⚠️ By default, Windows blocks ICMP (ping) on public networks for security reasons.
+✅ QUICK OPTION: Create a new rule to allow ping (ICMPv4)
+
+We’re going to manually create a rule to allow ping on a public network.
+🔧 Step-by-step (from Advanced Firewall settings):
+
+    Open Windows Security
+    Go to:
+
+Firewall & network protection → Advanced settings
+
+This will open Windows Defender Firewall with Advanced Security
+
+In the left panel, click on "Inbound Rules"
+
+In the right panel, click on "New Rule..."
+
+In the window that opens:
+
+    Rule Type:
+    ✅ Select "Custom" → Next
+
+    Program:
+    ✅ Leave it as "All programs" → Next
+
+    Protocol and Ports:
+    ✅ For “Protocol type”, select ICMPv4
+    → Leave the rest as default → Next
+
+    Scope (IP addresses):
+    ✅ Leave everything as default → Next
+
+    Action:
+    ✅ Select "Allow the connection" → Next
+
+    Profile:
+    ☑️ Check at least "Public" (you can also check "Private" if you want) → Next
+
+    Name:
+    Type something like: Allow ICMP ping
+
+Click Finish to create the rule.

@@ -14,6 +14,7 @@ function Invoice () {
         event.preventDefault()
         const invoice = await fetchInvoice(deviceId)
         console.log("Invoice: ", invoice)
+        invoice.message == "Not data from last month" ? alert("Not lectures from last month") : alert("Invoice created")
     }
 
     return (
