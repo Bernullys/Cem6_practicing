@@ -80,11 +80,11 @@ CREATE TABLE IF NOT EXISTS "app_users" (
 --     (4, 'february', '2024', 325.2)
 -- ;
 
-INSERT INTO "lectures" ("sensor_id", "lecture_time", "voltage_V", "current_A", "frecuency_Hz", "active_power_W", "reactive_power_var", "aparent_power_VA", "power_factor", "active_energy_consumption_kWh")
-VALUES
-    (4, "2025-07-21 15:44:04", 2250, 10, 50, 450, 10, 450, 1, 1200),
-    (4, "2025-07-30 18:44:04", 2250, 10, 50, 450, 10, 450, 1, 1800)
-;
+-- INSERT INTO "lectures" ("sensor_id", "lecture_time", "voltage_V", "current_A", "frecuency_Hz", "active_power_W", "reactive_power_var", "aparent_power_VA", "power_factor", "active_energy_consumption_kWh")
+-- VALUES
+--     (4, "2025-07-21 15:44:04", 2250, 10, 50, 450, 10, 450, 1, 1200),
+--     (4, "2025-07-30 18:44:04", 2250, 10, 50, 450, 10, 450, 1, 1800)
+-- ;
 
 -- DELETE FROM "lectures"
 -- WHERE "lecture_time" LIKE "2025-07-%";
