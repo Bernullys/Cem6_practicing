@@ -45,6 +45,10 @@ function CheckElecParam () {
                     />
                 }
             </section>
+            <iframe src="http://localhost:3000/public-dashboards/cb3a243c08b5402f9ad754aff7be82f2"
+                    width="100%"
+                    height="400"
+                    frameborder="0"></iframe>
         </section>
     )
 }

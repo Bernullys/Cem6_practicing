@@ -12,6 +12,18 @@ import platform
 from auth import router as auth_router
 from auth import get_current_user
 
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
+
+influx_server_url = "http://localhost:8086"
+influx_token = "4Up32I3Xg5xU3X3X5c_T5ksBBolkOxtcn-6VC4d0XpX0kG1Hq90pprEfRShSGOJ_pA70to9jzb8baZp_ISC8yA=="
+influx_org = "test"
+influx_bucket = "test"
+
+influx_client = InfluxDBClient(url=influx_server_url, token=influx_token, org=influx_org)
+write_api = influx_client.write_api(write_options=SYNCHRONOUS)
+
+
 # Importing functions from database_helpers.py and invoice_pdf_maker.py:
 from database_helpers import add_user_to_db, insert_lectures, energy_by_id_and_range, add_monthly_consumption_to_db, bring_invoice_data, get_current_devices
 from invoice_pdf_maker import invoice, graph_maker
@@ -60,7 +72,7 @@ app.include_router(auth_router)
 # Communicate with my frontend / Enable CORS:
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5173"], # Here will be the frontend URL in production.
+    allow_origins=["http://127.0.0.1:5173", "http://localhost:3000"], # Here will be the frontend URL in production.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -224,9 +236,38 @@ async def poll_modbus():
                     actual_time_variables = time_variables()
                     # Reding registers from the device:
                     registers = response.registers
-                    logging.info(f"Received Registers from device: {device_id}, registers: {registers}")
+                    # logging.info(f"Received Registers from device: {device_id}, registers: {registers}")
                     # Here I have to filter the values I want to store in the database
                     lectures = [register for indx, register in enumerate(registers) if indx in electric_parameters]
+                    
+                    # New part: Send to InfluxDB to make graphics:
+                    voltage_lecture = float(lectures[0])
+                    current_leture = float(lectures[1])
+                    frecuency_lecture = float(lectures[2])
+                    active_power_lecture = float(lectures[3])
+                    reactive_power_lecture = float(lectures[4])
+                    aparent_power_lecture = float(lectures[5])
+                    power_factor_lecture = float(lectures[6])
+                    active_energy_lecture = float(lectures[7])
+                    try:
+                        point = (
+                            Point("cem6_readings")
+                            .field("voltage", voltage_lecture)
+                            .field("current", current_leture)
+                            .field("frecuency", frecuency_lecture)
+                            .field("active_power", active_power_lecture)
+                            .field("reactive_power", reactive_power_lecture)
+                            .field("aparent_power", aparent_power_lecture)
+                            .field("power_factor", power_factor_lecture)
+                            .field("active_energy", active_energy_lecture)
+                            .time(datetime.utcnow())
+                        )
+                        write_api.write(bucket=influx_bucket, org=influx_org, record=point)
+                        print(f"Wrote to InfluxDB: {voltage_lecture}")
+                    except Exception as e:
+                        print(f"Error writting to influxdb: {e}")
+
+                    
                     # Here is where will get store in a database
                     insert_lectures(lectures, device_id, actual_time_variables[1])
                     # Now add the monthly energy consumption to the historical_lectures table:
